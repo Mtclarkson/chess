@@ -47,6 +47,14 @@ public class ChessPiece {
     }
 
     /**
+     * helper funtion for knight
+     * @return boolean for whether a knight's move is in bounds
+     */
+    public boolean kInbounds(int i, int j) {
+        return (i <= 8) && (i >= 1) && (j <= 8) && (j >= 1);
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -133,6 +141,95 @@ public class ChessPiece {
                 }
                 else break;
             }
+        }
+
+        // KNIGHT
+        if (piece.getPieceType() == PieceType.KNIGHT) {
+
+            // ^^>
+            i+=2;
+            j++;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+
+            // >>^
+            i--;
+            j++;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+
+            // >>v
+            i-=2;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+
+            // vv>
+            i--;
+            j--;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+            // vv<
+            j-=2;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+
+            // <<v
+            i++;
+            j--;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+
+            // <<^
+            i+=2;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+
+            // ^^<
+            i++;
+            j++;
+            if (kInbounds(i,j)) {
+                ChessPosition newPosition = new ChessPosition(i, j);
+                ChessPiece targetPiece = board.getPiece(newPosition);
+                if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
+                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+
         }
 
         // ROOK
