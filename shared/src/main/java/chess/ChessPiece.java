@@ -79,10 +79,33 @@ public class ChessPiece {
                         possibleMoves.add(new ChessMove(myPosition, frenchOpen, null));
                     }
                 }
-                ChessPosition newPosition = new ChessPosition(i+1, j);
-                if (board.getPiece(newPosition) == null) {
-                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+
+                if (kInbounds(i+1, j)) {
+                    ChessPosition newPosition = new ChessPosition(i + 1, j);
+                    if (board.getPiece(newPosition) == null) {
+                        possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                    }
                 }
+
+                if (kInbounds(i+1,j+1)) {
+                    ChessPosition potentialCaptureRight = new ChessPosition(i + 1, j + 1);
+
+                    if (board.getPiece(potentialCaptureRight) != null) {
+                        if (board.getPiece(potentialCaptureRight).getTeamColor() != piece.getTeamColor()) {
+                            possibleMoves.add(new ChessMove(myPosition, potentialCaptureRight, null));
+                        }
+                    }
+                }
+
+                if (kInbounds(i+1, j-1)) {
+                    ChessPosition potentialCaptureLeft = new ChessPosition(i + 1, j - 1);
+                    if (board.getPiece(potentialCaptureLeft) != null) {
+                        if (board.getPiece(potentialCaptureLeft).getTeamColor() != piece.getTeamColor()) {
+                            possibleMoves.add(new ChessMove(myPosition, potentialCaptureLeft, null));
+                        }
+                    }
+                }
+
             }
 
             // black
@@ -94,9 +117,31 @@ public class ChessPiece {
                         possibleMoves.add(new ChessMove(myPosition, frenchOpen, null));
                     }
                 }
-                ChessPosition newPosition = new ChessPosition(i-1, j);
-                if (board.getPiece(newPosition) == null) {
-                    possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+
+                if (kInbounds(i-1, j)) {
+                    ChessPosition newPosition = new ChessPosition(i - 1, j);
+                    if (board.getPiece(newPosition) == null) {
+                        possibleMoves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+                }
+
+                if (kInbounds(i-1,j+1)) {
+                    ChessPosition potentialCaptureRight = new ChessPosition(i - 1, j + 1);
+
+                    if (board.getPiece(potentialCaptureRight) != null) {
+                        if (board.getPiece(potentialCaptureRight).getTeamColor() != piece.getTeamColor()) {
+                            possibleMoves.add(new ChessMove(myPosition, potentialCaptureRight, null));
+                        }
+                    }
+                }
+
+                if (kInbounds(i-1, j-1)) {
+                    ChessPosition potentialCaptureLeft = new ChessPosition(i - 1, j - 1);
+                    if (board.getPiece(potentialCaptureLeft) != null) {
+                        if (board.getPiece(potentialCaptureLeft).getTeamColor() != piece.getTeamColor()) {
+                            possibleMoves.add(new ChessMove(myPosition, potentialCaptureLeft, null));
+                        }
+                    }
                 }
             }
 
