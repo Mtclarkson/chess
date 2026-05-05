@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -46,12 +43,17 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        // set up for white side
+        // set pawns for both sides
         int pwnCntr = 1;
         while (pwnCntr <= 8) {
-            ChessPosition newPawnPosition = new ChessPosition(2, pwnCntr);
-            ChessPiece newPawnPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-            addPiece(newPawnPosition, newPawnPiece);
+            ChessPosition newWhitePawnPosition = new ChessPosition(2, pwnCntr);
+            ChessPiece newWhitePawnPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            addPiece(newWhitePawnPosition, newWhitePawnPiece);
+
+            ChessPosition newBlackPawnPosition = new ChessPosition(7, pwnCntr);
+            ChessPiece newBlackPawnPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+            addPiece(newBlackPawnPosition, newBlackPawnPiece);
+
             pwnCntr++;
         }
 
@@ -59,29 +61,56 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        List<String> boardPieces = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            for (int j = 0; j < 7; j++) {
-                boardPieces.add("|");
+        Deque<String> boardPieces = new ArrayDeque<>();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                boardPieces.push("|");
                 if (squares[i][j] == null) {
-                    boardPieces.add(" ");
+                    boardPieces.push(" ");
                 } else {
                     if (squares[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
                         if (squares[i][j].getPieceType() == ChessPiece.PieceType.PAWN) {
-                            boardPieces.add("P");
+                            boardPieces.push("P");
                         }
                         else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
-                            boardPieces.add("K");
+                            boardPieces.push("K");
                         }
                         else if (squares[i][j].getPieceType() == ChessPiece.PieceType.QUEEN) {
-                            boardPieces.add("Q");
+                            boardPieces.push("Q");
                         }
-                        else boardPieces.add("X");
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.BISHOP) {
+                            boardPieces.push("B");
+                        }
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                            boardPieces.push("N");
+                        }
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.ROOK) {
+                            boardPieces.push("R");
+                        }
                     }
-                    else boardPieces.add("X");
+                    if (squares[i][j].getTeamColor() == ChessGame.TeamColor.BLACK) {
+                        if (squares[i][j].getPieceType() == ChessPiece.PieceType.PAWN) {
+                            boardPieces.push("p");
+                        }
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
+                            boardPieces.push("k");
+                        }
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.QUEEN) {
+                            boardPieces.push("q");
+                        }
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.BISHOP) {
+                            boardPieces.push("b");
+                        }
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KNIGHT) {
+                            boardPieces.push("n");
+                        }
+                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.ROOK) {
+                            boardPieces.push("r");
+                        }
+                    }
                 }
             }
-            boardPieces.add("\n");
+            boardPieces.push("\n");
         }
 
 
