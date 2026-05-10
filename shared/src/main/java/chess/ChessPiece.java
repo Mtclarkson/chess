@@ -51,7 +51,7 @@ public class ChessPiece {
      * helper funtion for knight
      * @return boolean for whether a knight's move is in bounds
      */
-    public boolean kInbounds(int i, int j) {
+    public boolean inbounds(int i, int j) {
         return (i <= 8) && (i >= 1) && (j <= 8) && (j >= 1);
     }
 
@@ -88,14 +88,14 @@ public class ChessPiece {
                         }
                     }
 
-                    if (kInbounds(i + 1, j)) {
+                    if (inbounds(i + 1, j)) {
                         ChessPosition newPosition = new ChessPosition(i + 1, j);
                         if (board.getPiece(newPosition) == null) {
                             possibleMoves.add(new ChessMove(myPosition, newPosition, promoPiece));
                         }
                     }
 
-                    if (kInbounds(i + 1, j + 1)) {
+                    if (inbounds(i + 1, j + 1)) {
                         ChessPosition potentialCaptureRight = new ChessPosition(i + 1, j + 1);
 
                         if (board.getPiece(potentialCaptureRight) != null) {
@@ -105,7 +105,7 @@ public class ChessPiece {
                         }
                     }
 
-                    if (kInbounds(i + 1, j - 1)) {
+                    if (inbounds(i + 1, j - 1)) {
                         ChessPosition potentialCaptureLeft = new ChessPosition(i + 1, j - 1);
                         if (board.getPiece(potentialCaptureLeft) != null) {
                             if (board.getPiece(potentialCaptureLeft).getTeamColor() != piece.getTeamColor()) {
@@ -133,14 +133,14 @@ public class ChessPiece {
                         }
                     }
 
-                    if (kInbounds(i - 1, j)) {
+                    if (inbounds(i - 1, j)) {
                         ChessPosition newPosition = new ChessPosition(i - 1, j);
                         if (board.getPiece(newPosition) == null) {
                             possibleMoves.add(new ChessMove(myPosition, newPosition, promoPiece));
                         }
                     }
 
-                    if (kInbounds(i - 1, j + 1)) {
+                    if (inbounds(i - 1, j + 1)) {
                         ChessPosition potentialCaptureRight = new ChessPosition(i - 1, j + 1);
 
                         if (board.getPiece(potentialCaptureRight) != null) {
@@ -150,7 +150,7 @@ public class ChessPiece {
                         }
                     }
 
-                    if (kInbounds(i - 1, j - 1)) {
+                    if (inbounds(i - 1, j - 1)) {
                         ChessPosition potentialCaptureLeft = new ChessPosition(i - 1, j - 1);
                         if (board.getPiece(potentialCaptureLeft) != null) {
                             if (board.getPiece(potentialCaptureLeft).getTeamColor() != piece.getTeamColor()) {
@@ -175,7 +175,7 @@ public class ChessPiece {
 
             // up
             i++;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -185,7 +185,7 @@ public class ChessPiece {
 
             // up-right
             j++;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -195,7 +195,7 @@ public class ChessPiece {
 
             // right
             i--;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -205,7 +205,7 @@ public class ChessPiece {
 
             // down-right
             i--;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -215,7 +215,7 @@ public class ChessPiece {
 
             // down
             j--;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -225,7 +225,7 @@ public class ChessPiece {
 
             // down-left
             j--;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -235,7 +235,7 @@ public class ChessPiece {
 
             // left
             i++;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -245,7 +245,7 @@ public class ChessPiece {
 
             // up-left
             i++;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -469,7 +469,7 @@ public class ChessPiece {
             // ^^>
             i+=2;
             j++;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -480,7 +480,7 @@ public class ChessPiece {
             // >>^
             i--;
             j++;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -490,7 +490,7 @@ public class ChessPiece {
 
             // >>v
             i-=2;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -501,7 +501,7 @@ public class ChessPiece {
             // vv>
             i--;
             j--;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -510,7 +510,7 @@ public class ChessPiece {
             }
             // vv<
             j-=2;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -521,7 +521,7 @@ public class ChessPiece {
             // <<v
             i++;
             j--;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -531,7 +531,7 @@ public class ChessPiece {
 
             // <<^
             i+=2;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
@@ -542,7 +542,7 @@ public class ChessPiece {
             // ^^<
             i++;
             j++;
-            if (kInbounds(i,j)) {
+            if (inbounds(i,j)) {
                 ChessPosition newPosition = new ChessPosition(i, j);
                 ChessPiece targetPiece = board.getPiece(newPosition);
                 if ((targetPiece == null) || (targetPiece.getTeamColor() != piece.getTeamColor())) {
