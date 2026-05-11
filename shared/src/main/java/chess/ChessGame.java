@@ -17,6 +17,7 @@ public class ChessGame {
     }
 
     ChessBoard gameboard = new ChessBoard();
+    //gameboard.resetBoard();
     TeamColor currentTeam;
 
     // find a way to get the king position as a global variable
@@ -57,7 +58,7 @@ public class ChessGame {
         ChessPiece piece = gameboard.getPiece(startPosition);
 
         if (piece == null) {
-            return null;
+            return validMoves;
         }
 
         // list of possible moves
@@ -184,7 +185,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("yo mama");
     }
 
     /**
@@ -202,7 +203,7 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return gameboard;
     }
 
     @Override
