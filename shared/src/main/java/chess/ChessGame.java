@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -52,12 +53,31 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        List<ChessMove> validMoves = new ArrayList<>();
         ChessPiece piece = gameboard.getPiece(startPosition);
+
         if (piece == null) {
             return null;
         }
-        Collection<ChessMove> moves = piece.pieceMoves(gameboard, startPosition);
-        return moves;
+
+        // list of possible moves
+        ArrayList<ChessMove> moves = new ArrayList<>(piece.pieceMoves(gameboard, startPosition));
+
+        for (ChessMove move : moves) {
+            ChessPosition endPosition = move.getEndPosition();
+            ChessPiece targetPiece = gameboard.getPiece(endPosition);
+            // make the move
+            gameboard.addPiece(endPosition,piece);
+            gameboard.addPiece(startPosition, null);
+            // see if that move put you in check
+            if (!this.isInCheck(piece.getTeamColor())) {
+                validMoves.add(move);
+            }
+            // move back, silly
+            gameboard.addPiece(endPosition,targetPiece);
+            gameboard.addPiece(startPosition, piece);
+        }
+        return validMoves;
     }
 
     /**
@@ -136,7 +156,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("blah");
+        ChessPosition kingPosition = getKingPosition(teamColor);
+        if (this.isInCheck(teamColor)) { // if the king is currently in check
+            return this.validMoves(kingPosition).isEmpty(); // moves where king isn't in check is empty
+        }
+        return false;
     }
 
     /**
