@@ -185,7 +185,23 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("yo mama");
+        if (!this.isInCheck(teamColor)) { // if the king is currently in check
+            for (int i = 1; i < 9; i++) {
+                for (int j = 1; j < 9; j++) {
+                    ChessPosition currentPosition = new ChessPosition(i,j);
+                    ChessPiece currentPiece = gameboard.getPiece(currentPosition);
+                    if (currentPiece != null) {
+                        if (currentPiece.getTeamColor() == teamColor) {
+                            if (!this.validMoves(currentPosition).isEmpty()) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
