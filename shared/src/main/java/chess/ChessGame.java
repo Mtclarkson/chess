@@ -91,12 +91,19 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = gameboard.getPiece(startPosition);
-        if (this.validMoves(startPosition).contains(move)) {
-            gameboard.addPiece(endPosition,piece);
-            gameboard.addPiece(startPosition, null);
-        } else {
-            throw new InvalidMoveException("Invalid move!");
+        if (piece != null) {
+            if ((piece.getTeamColor() == currentTeam) && (this.validMoves(startPosition).contains(move))) {
+                gameboard.addPiece(endPosition, piece);
+                gameboard.addPiece(startPosition, null);
+                if (currentTeam == TeamColor.WHITE) {
+                    currentTeam = TeamColor.BLACK;
+                } else {
+                    currentTeam = TeamColor.WHITE;
+                }
+                return;
+            }
         }
+        throw new InvalidMoveException("Invalid move!");
     }
 
     public ChessPosition getKingPosition(TeamColor teamColor) {
