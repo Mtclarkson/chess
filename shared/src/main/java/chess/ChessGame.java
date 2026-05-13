@@ -13,14 +13,14 @@ import java.util.Objects;
  */
 public class ChessGame {
 
-    public ChessGame() {
-    }
-
     ChessBoard gameboard = new ChessBoard();
-    //gameboard.resetBoard();
     TeamColor currentTeam;
 
-    // find a way to get the king position as a global variable
+    public ChessGame() {
+        gameboard.resetBoard();
+        currentTeam = TeamColor.WHITE;
+    }
+
 
     /**
      * @return Which team's turn it is
