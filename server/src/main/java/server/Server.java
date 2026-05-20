@@ -6,6 +6,8 @@ import service.*;
 import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
+
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Server {
@@ -17,6 +19,7 @@ public class Server {
 
     record RegisterResult(String username, String authToken) {}
     record LoginResult(String username, String authToken) {}
+    record ListResult(ArrayList<GameData> games) {}
     record CreateResult(int gameID) {}
 
 
@@ -142,7 +145,8 @@ public class Server {
                 throw new WrongPasswordException("Error: unauthorized");
             }
 
-            ctx.result(gameService.listGames().toString());
+            ListResult listResult = new ListResult(gameService.listGames());
+            ctx.result(new Gson().toJson(listResult));
             ctx.status(200);
 
         } catch (WrongPasswordException ex) {
@@ -158,15 +162,21 @@ public class Server {
             String authToken = ctx.header("authorization");
             AuthData authData = authService.getAuth(authToken);
 
+            if (game.gameName().isEmpty()) {
+                throw new BadRequestException("Error: Need a game name");
+            }
+
             if (authData == null) {
                 throw new WrongPasswordException("Error: unauthorized");
             }
 
-            game = createGame(game.gameName());
+            game = gameService.createGame(game.gameName());
             CreateResult createResult = new CreateResult(game.gameID());
             ctx.result(new Gson().toJson(createResult));
             ctx.status(200);
 
+        } catch (BadRequestException ex) {
+            ctx.status(400);
         } catch (WrongPasswordException ex) {
             ctx.status(401);
         } catch (Exception ex) {
