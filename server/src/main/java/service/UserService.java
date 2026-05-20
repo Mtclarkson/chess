@@ -10,6 +10,14 @@ public class UserService {
         UserService.userDAO = userDAO;
     }
 
+    public static UserData createUser(UserData user) throws DataAccessException {
+        return userDAO.createUser(user);
+    }
+
+    public static UserData getUser(String usernameGiven) throws DataAccessException {
+        return userDAO.getUser(usernameGiven);
+    }
+
     public static void clearAllUsers() throws DataAccessException {
         userDAO.clearAllUsers();
     }

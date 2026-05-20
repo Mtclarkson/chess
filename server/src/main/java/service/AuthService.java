@@ -10,6 +10,10 @@ public class AuthService {
         AuthService.authDAO = authDAO;
     }
 
+    public static AuthData createAuth(AuthData authData) throws DataAccessException {
+        return authDAO.createAuth(authData);
+    }
+
     public static void clearAllAuthTokens() throws DataAccessException {
         authDAO.clearAllAuthTokens();
     }
