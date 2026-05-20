@@ -31,7 +31,8 @@ public class Server {
                 .post("/session", this::login)
                 .delete("/session", this::logout)
                 .get("/game", this::list)
-                .post("/game", this::create);
+                .post("/game", this::create)
+                .put("/game", this::join);
         AuthDAO authDAO = new AuthMemory();
         this.authService = new AuthService(authDAO);
         UserDAO userDAO = new UserMemory();
@@ -174,6 +175,36 @@ public class Server {
             CreateResult createResult = new CreateResult(game.gameID());
             ctx.result(new Gson().toJson(createResult));
             ctx.status(200);
+
+        } catch (BadRequestException ex) {
+            ctx.status(400);
+        } catch (WrongPasswordException ex) {
+            ctx.status(401);
+        } catch (Exception ex) {
+            ctx.status(500);
+        }
+    }
+
+    private void join(Context ctx) throws DataAccessException {
+        try {
+            GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+            String authToken = ctx.header("authorization");
+            AuthData authData = authService.getAuth(authToken);
+
+            // figure out how to get playerColor to translate to current player's color or set whiteUsername to their
+            // username if they're white and vice versa
+
+            if (game.gameName().isEmpty()) {
+                throw new BadRequestException("Error: Need a game name");
+            }
+
+            if (authData == null) {
+                throw new WrongPasswordException("Error: unauthorized");
+            }
+
+            game = gameService.getGame(game.gameID());
+
+            if ((game.whiteUsername() == null) && ) // AlreadyTakenException
 
         } catch (BadRequestException ex) {
             ctx.status(400);

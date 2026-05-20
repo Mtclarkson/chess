@@ -20,6 +20,10 @@ public class GameService {
         return gameDAO.createGame(gameName);
     }
 
+    public GameData getGame(int givenGameID) throws DataAccessException {
+        return gameDAO.getGame(givenGameID);
+    }
+
     public void clearAllGames() throws DataAccessException {
         gameDAO.clearAllGames();
     }
