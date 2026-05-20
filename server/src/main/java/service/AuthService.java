@@ -10,11 +10,19 @@ public class AuthService {
         AuthService.authDAO = authDAO;
     }
 
-    public static AuthData createAuth(AuthData authData) throws DataAccessException {
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        return authDAO.getAuth(authToken);
+    }
+
+    public AuthData createAuth(AuthData authData) throws DataAccessException {
         return authDAO.createAuth(authData);
     }
 
-    public static void clearAllAuthTokens() throws DataAccessException {
+    public void deleteAuth(AuthData authData) throws DataAccessException {
+        authDAO.deleteAuth(authData);
+    }
+
+    public void clearAllAuthTokens() throws DataAccessException {
         authDAO.clearAllAuthTokens();
     }
 }
