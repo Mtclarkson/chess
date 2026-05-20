@@ -100,11 +100,7 @@ public class Server {
             String givenPassword = user.password();
             user = userService.getUser(user.username());
 
-            if (user == null) {
-                throw new Exception("User not found");
-            }
-
-            if (!user.password().equals(givenPassword)) {
+            if ((user == null) || (!user.password().equals(givenPassword))) {
                 throw new WrongPasswordException("Error: unauthorized");
             }
 
@@ -139,6 +135,7 @@ public class Server {
 
         } catch (WrongPasswordException ex) {
             ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
         }
@@ -159,6 +156,7 @@ public class Server {
 
         } catch (WrongPasswordException ex) {
             ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
         }
