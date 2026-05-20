@@ -22,5 +22,9 @@ public class UserMemory implements UserDAO {
         return null;
     }
 
+    public ArrayList<UserData> usersList() {
+        return users;
+    }
+
     public void clearAllUsers() {users.clear();}
 }

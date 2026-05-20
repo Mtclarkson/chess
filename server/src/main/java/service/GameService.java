@@ -12,12 +12,18 @@ public class GameService {
         GameService.gameDAO = gameDAO;
     }
 
+    private boolean isNullOrBlank(String input) {
+        return (input == null) || (input.isEmpty());
+    }
+
     public ArrayList<GameData> listGames() throws DataAccessException {
         return gameDAO.listGames();
     }
 
     public GameData createGame(String gameName) throws DataAccessException {
-        return gameDAO.createGame(gameName);
+        if (isNullOrBlank(gameName)) {
+            return null;
+        } return gameDAO.createGame(gameName);
     }
 
     public GameData getGame(int givenGameID) throws DataAccessException {
@@ -25,6 +31,10 @@ public class GameService {
     }
 
     public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
+        if (isNullOrBlank(playerColor) || isNullOrBlank(newUsername) || (getGame(gameID)==null) ||
+                (!playerColor.equals("BLACK") && !playerColor.equals("WHITE"))) {
+            return null;
+        }
         return gameDAO.updateGame(playerColor, newUsername, gameID);
     }
 

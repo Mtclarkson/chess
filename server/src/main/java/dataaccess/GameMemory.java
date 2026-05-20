@@ -8,13 +8,15 @@ import java.util.ArrayList;
 
 public class GameMemory implements GameDAO {
     final private ArrayList<GameData> games = new ArrayList<>();
+    public int ID = 0;
 
     public ArrayList<GameData> listGames() {
         return games;
     }
 
     public GameData createGame(String gameName) {
-        GameData game = new GameData(1234, null, null, gameName, new ChessGame());
+        ID++;
+        GameData game = new GameData(ID, null, null, gameName, new ChessGame());
         games.add(game);
         return game;
     }
@@ -37,6 +39,9 @@ public class GameMemory implements GameDAO {
         return updatedGame;
     }
 
-    public void clearAllGames() {games.clear();}
+    public void clearAllGames() {
+        games.clear();
+        ID = 0;
+    }
 
 }
