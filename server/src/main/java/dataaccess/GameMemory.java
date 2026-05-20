@@ -14,7 +14,7 @@ public class GameMemory implements GameDAO {
     }
 
     public GameData createGame(String gameName) {
-        GameData game = new GameData(1234, "WHITE", "BLACK", gameName, new ChessGame());
+        GameData game = new GameData(1234, null, null, gameName, new ChessGame());
         games.add(game);
         return game;
     }
@@ -26,6 +26,15 @@ public class GameMemory implements GameDAO {
             }
         }
         return null;
+    }
+
+    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
+        GameData game = getGame(gameID);
+        GameData updatedGame = (playerColor.equals("WHITE")) ? new GameData(gameID, newUsername, game.blackUsername() ,game.gameName(), game.game()) :
+                new GameData(gameID, game.whiteUsername(), newUsername, game.gameName(), game.game());
+        games.remove(game);
+        games.add(updatedGame);
+        return updatedGame;
     }
 
     public void clearAllGames() {games.clear();}

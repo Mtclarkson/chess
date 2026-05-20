@@ -8,6 +8,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 public class Server {
@@ -21,6 +22,7 @@ public class Server {
     record LoginResult(String username, String authToken) {}
     record ListResult(ArrayList<GameData> games) {}
     record CreateResult(int gameID) {}
+    record JoinRequest(String playerColor, int gameID) {}
 
 
 
@@ -60,12 +62,12 @@ public class Server {
 
             // works?
             if (isNullOrBlank(user.username()) || isNullOrBlank(user.password()) || isNullOrBlank(user.email())) {
-                throw new BadRequestException("Error: Username, password, and email are required");
+                throw new BadRequestException("Error: bad request");
             }
 
             // works?
             if (userService.getUser(user.username()) != null) {
-                throw new AlreadyTakenException("Error: Username is taken");
+                throw new AlreadyTakenException("Error: already taken");
             }
 
             user = userService.createUser(user);
@@ -77,8 +79,10 @@ public class Server {
         }
         catch (AlreadyTakenException ex) {
             ctx.status(403);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (BadRequestException ex) {
             ctx.status(400);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
         }
@@ -90,7 +94,7 @@ public class Server {
 
             // works?
             if (isNullOrBlank(user.username()) || isNullOrBlank(user.password())) {
-                throw new BadRequestException("Error: Username & password are required");
+                throw new BadRequestException("Error: bad request");
             }
 
             String givenPassword = user.password();
@@ -101,7 +105,7 @@ public class Server {
             }
 
             if (!user.password().equals(givenPassword)) {
-                throw new WrongPasswordException("Password incorrect");
+                throw new WrongPasswordException("Error: unauthorized");
             }
 
             AuthData authdata = authService.createAuth(new AuthData(UUID.randomUUID().toString(), user.username()));
@@ -111,10 +115,13 @@ public class Server {
 
         } catch (BadRequestException ex) {
             ctx.status(400);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (WrongPasswordException ex) {
             ctx.status(401);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         }
     }
 
@@ -187,29 +194,50 @@ public class Server {
 
     private void join(Context ctx) throws DataAccessException {
         try {
-            GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+            JoinRequest joinRequest = new Gson().fromJson(ctx.body(), JoinRequest.class);
             String authToken = ctx.header("authorization");
             AuthData authData = authService.getAuth(authToken);
-
-            // figure out how to get playerColor to translate to current player's color or set whiteUsername to their
-            // username if they're white and vice versa
-
-            if (game.gameName().isEmpty()) {
-                throw new BadRequestException("Error: Need a game name");
-            }
 
             if (authData == null) {
                 throw new WrongPasswordException("Error: unauthorized");
             }
 
-            game = gameService.getGame(game.gameID());
+            if (joinRequest.playerColor().isEmpty() || (joinRequest.gameID()==0)) {
+                throw new BadRequestException("Error: Need a valid game ID and player color");
+            }
 
-            if ((game.whiteUsername() == null) && ) // AlreadyTakenException
+            String joiningPlayerColor = joinRequest.playerColor();
+
+            GameData game = gameService.getGame(joinRequest.gameID());
+
+            if (game == null) {
+                throw new Exception("Error: game doesn't exist");
+            }
+
+            if ((game.whiteUsername()!=null) && (game.blackUsername()!=null)) {
+                throw new AlreadyTakenException("Error: Game is full");
+            }
+
+            if (joiningPlayerColor.equals("WHITE")) {
+                if (game.whiteUsername()!=null) {
+                    throw new AlreadyTakenException("Error: White is already taken");
+                } game = gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID());
+            }
+
+            if (joiningPlayerColor.equals("BLACK")) {
+                if (game.blackUsername()!=null) {
+                    throw new AlreadyTakenException("Error: Black is already taken");
+                } game = gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID());
+            }
+
+            ctx.status(200);
 
         } catch (BadRequestException ex) {
             ctx.status(400);
         } catch (WrongPasswordException ex) {
             ctx.status(401);
+        } catch (AlreadyTakenException ex) {
+            ctx.status(403);
         } catch (Exception ex) {
             ctx.status(500);
         }

@@ -24,6 +24,10 @@ public class GameService {
         return gameDAO.getGame(givenGameID);
     }
 
+    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
+        return gameDAO.updateGame(playerColor, newUsername, gameID);
+    }
+
     public void clearAllGames() throws DataAccessException {
         gameDAO.clearAllGames();
     }
