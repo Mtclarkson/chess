@@ -8,6 +8,8 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -75,6 +77,15 @@ class GameServiceTests {
         update = service.updateGame("BLACK","Mr. White", fakeID);
 
         assertNull(update);
+    }
+
+    // positive test for listGames();
+    @Test
+    void listGamesTest() throws DataAccessException {
+        service.createGame("monopoly");
+        GameData game2 = service.createGame("bonopoly");
+        ArrayList<GameData> list = service.listGames();
+        assertEquals(game2, list.get(1));
     }
 
     // positive test for clearAllGames();

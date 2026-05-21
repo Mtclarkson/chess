@@ -27,5 +27,9 @@ public class AuthMemory implements AuthDAO {
         authTokens.remove(authData);
     }
 
+    public ArrayList<AuthData> authList() throws DataAccessException {
+        return authTokens;
+    }
+
     public void clearAllAuthTokens() {authTokens.clear();}
 }
