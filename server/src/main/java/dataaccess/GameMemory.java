@@ -2,21 +2,20 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
-import model.UserData;
 
 import java.util.ArrayList;
 
 public class GameMemory implements GameDAO {
     final private ArrayList<GameData> games = new ArrayList<>();
-    public int ID = 0;
+    public int id = 0;
 
     public ArrayList<GameData> listGames() {
         return games;
     }
 
     public GameData createGame(String gameName) {
-        ID++;
-        GameData game = new GameData(ID, null, null, gameName, new ChessGame());
+        id++;
+        GameData game = new GameData(id, null, null, gameName, new ChessGame());
         games.add(game);
         return game;
     }
@@ -41,7 +40,7 @@ public class GameMemory implements GameDAO {
 
     public void clearAllGames() {
         games.clear();
-        ID = 0;
+        id = 0;
     }
 
 }

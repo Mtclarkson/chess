@@ -2,9 +2,7 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.GameMemory;
-import dataaccess.UserMemory;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,37 +13,37 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class GameServiceTests {
 
-    static final GameService service = new GameService(new GameMemory());
+    static final GameService GAME_SERVICE = new GameService(new GameMemory());
 
     @BeforeEach
     void clear() throws DataAccessException {
-        service.clearAllGames();
+        GAME_SERVICE.clearAllGames();
     }
 
     // positive test for createGame();
     @Test
     void createGameTest() throws DataAccessException {
-        service.createGame("monopoly");
-        service.createGame("bonopoly");
+        GAME_SERVICE.createGame("monopoly");
+        GAME_SERVICE.createGame("bonopoly");
 
-        assertEquals(2, service.listGames().size());
+        assertEquals(2, GAME_SERVICE.listGames().size());
     }
 
     // negative test for createGame();
     @Test
     void createGameBadRequestTest() throws DataAccessException {
-        service.createGame("");
-        service.createGame("");
+        GAME_SERVICE.createGame("");
+        GAME_SERVICE.createGame("");
 
-        assertEquals(0, service.listGames().size());
+        assertEquals(0, GAME_SERVICE.listGames().size());
     }
 
     // positive test for getGame();
     @Test
     void getGameTest() throws DataAccessException {
-        GameData monopoly = service.createGame("monopoly");
+        GameData monopoly = GAME_SERVICE.createGame("monopoly");
 
-        GameData result = service.getGame(monopoly.gameID());
+        GameData result = GAME_SERVICE.getGame(monopoly.gameID());
 
         assertEquals(monopoly, result);
     }
@@ -53,8 +51,8 @@ class GameServiceTests {
     // negative test for getGame();
     @Test
     void getGameDoesntExistTest() throws DataAccessException {
-        GameData monopoly = service.createGame("monopoly");
-        GameData result = service.getGame(67);
+        GameData monopoly = GAME_SERVICE.createGame("monopoly");
+        GameData result = GAME_SERVICE.getGame(67);
 
         assertNull(result);
     }
@@ -62,9 +60,9 @@ class GameServiceTests {
     // positive test for updateGame();
     @Test
     void updateGameTest() throws DataAccessException {
-        GameData monopoly = service.createGame("monopoly");
-        monopoly = service.updateGame("BLACK","Mr. White", monopoly.gameID());
-        monopoly = service.updateGame("WHITE","Mr. Black", monopoly.gameID());
+        GameData monopoly = GAME_SERVICE.createGame("monopoly");
+        monopoly = GAME_SERVICE.updateGame("BLACK","Mr. White", monopoly.gameID());
+        monopoly = GAME_SERVICE.updateGame("WHITE","Mr. Black", monopoly.gameID());
 
         assertEquals("Mr. White", monopoly.blackUsername());
     }
@@ -74,7 +72,7 @@ class GameServiceTests {
     void updateGameDoesntExistTest() throws DataAccessException {
         GameData update;
         int fakeID = 67;
-        update = service.updateGame("BLACK","Mr. White", fakeID);
+        update = GAME_SERVICE.updateGame("BLACK","Mr. White", fakeID);
 
         assertNull(update);
     }
@@ -82,20 +80,20 @@ class GameServiceTests {
     // positive test for listGames();
     @Test
     void listGamesTest() throws DataAccessException {
-        service.createGame("monopoly");
-        GameData game2 = service.createGame("bonopoly");
-        ArrayList<GameData> list = service.listGames();
+        GAME_SERVICE.createGame("monopoly");
+        GameData game2 = GAME_SERVICE.createGame("bonopoly");
+        ArrayList<GameData> list = GAME_SERVICE.listGames();
         assertEquals(game2, list.get(1));
     }
 
     // positive test for clearAllGames();
     @Test
     void clearGamesTest() throws DataAccessException {
-        service.createGame("monopoly");
-        service.createGame("bonopoly");
+        GAME_SERVICE.createGame("monopoly");
+        GAME_SERVICE.createGame("bonopoly");
 
-        service.clearAllGames();
-        assertEquals(0, service.listGames().size());
+        GAME_SERVICE.clearAllGames();
+        assertEquals(0, GAME_SERVICE.listGames().size());
     }
 
 }

@@ -58,14 +58,14 @@ public class ChessBoard {
         }
 
         // white side back row
-        ChessPosition LeftWhiteRookPosition = new ChessPosition(1,1);
-        ChessPosition LeftWhiteKnightPosition = new ChessPosition(1,2);
-        ChessPosition LeftWhiteBishopPosition = new ChessPosition(1,3);
-        ChessPosition WhiteKingPosition = new ChessPosition(1,5);
-        ChessPosition WhiteQueenPosition = new ChessPosition(1,4);
-        ChessPosition RightWhiteBishopPosition = new ChessPosition(1,6);
-        ChessPosition RightWhiteKnightPosition = new ChessPosition(1,7);
-        ChessPosition RightWhiteRookPosition = new ChessPosition(1,8);
+        ChessPosition leftWhiteRookPosition = new ChessPosition(1,1);
+        ChessPosition leftWhiteKnightPosition = new ChessPosition(1,2);
+        ChessPosition leftWhiteBishopPosition = new ChessPosition(1,3);
+        ChessPosition whiteKingPosition = new ChessPosition(1,5);
+        ChessPosition whiteQueenPosition = new ChessPosition(1,4);
+        ChessPosition rightWhiteBishopPosition = new ChessPosition(1,6);
+        ChessPosition rightWhiteKnightPosition = new ChessPosition(1,7);
+        ChessPosition rightWhiteRookPosition = new ChessPosition(1,8);
 
         ChessPiece newWhiteRookPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         ChessPiece newWhiteKnightPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
@@ -73,24 +73,24 @@ public class ChessBoard {
         ChessPiece newWhiteKingPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
         ChessPiece newWhiteQueenPiece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
 
-        addPiece(LeftWhiteRookPosition, newWhiteRookPiece);
-        addPiece(LeftWhiteKnightPosition, newWhiteKnightPiece);
-        addPiece(LeftWhiteBishopPosition, newWhiteBishopPiece);
-        addPiece(WhiteKingPosition, newWhiteKingPiece);
-        addPiece(WhiteQueenPosition, newWhiteQueenPiece);
-        addPiece(RightWhiteRookPosition, newWhiteRookPiece);
-        addPiece(RightWhiteKnightPosition, newWhiteKnightPiece);
-        addPiece(RightWhiteBishopPosition, newWhiteBishopPiece);
+        addPiece(leftWhiteRookPosition, newWhiteRookPiece);
+        addPiece(leftWhiteKnightPosition, newWhiteKnightPiece);
+        addPiece(leftWhiteBishopPosition, newWhiteBishopPiece);
+        addPiece(whiteKingPosition, newWhiteKingPiece);
+        addPiece(whiteQueenPosition, newWhiteQueenPiece);
+        addPiece(rightWhiteRookPosition, newWhiteRookPiece);
+        addPiece(rightWhiteKnightPosition, newWhiteKnightPiece);
+        addPiece(rightWhiteBishopPosition, newWhiteBishopPiece);
 
         // black side back row
-        ChessPosition LeftBlackRookPosition = new ChessPosition(8,1);
-        ChessPosition LeftBlackKnightPosition = new ChessPosition(8,2);
-        ChessPosition LeftBlackBishopPosition = new ChessPosition(8,3);
-        ChessPosition BlackKingPosition = new ChessPosition(8,5);
-        ChessPosition BlackQueenPosition = new ChessPosition(8,4);
-        ChessPosition RightBlackBishopPosition = new ChessPosition(8,6);
-        ChessPosition RightBlackKnightPosition = new ChessPosition(8,7);
-        ChessPosition RightBlackRookPosition = new ChessPosition(8,8);
+        ChessPosition leftBlackRookPosition = new ChessPosition(8,1);
+        ChessPosition leftBlackKnightPosition = new ChessPosition(8,2);
+        ChessPosition leftBlackBishopPosition = new ChessPosition(8,3);
+        ChessPosition blackKingPosition = new ChessPosition(8,5);
+        ChessPosition blackQueenPosition = new ChessPosition(8,4);
+        ChessPosition rightBlackBishopPosition = new ChessPosition(8,6);
+        ChessPosition rightBlackKnightPosition = new ChessPosition(8,7);
+        ChessPosition rightBlackRookPosition = new ChessPosition(8,8);
 
         ChessPiece newBlackRookPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         ChessPiece newBlackKnightPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
@@ -98,14 +98,14 @@ public class ChessBoard {
         ChessPiece newBlackKingPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
         ChessPiece newBlackQueenPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
 
-        addPiece(LeftBlackRookPosition, newBlackRookPiece);
-        addPiece(LeftBlackKnightPosition, newBlackKnightPiece);
-        addPiece(LeftBlackBishopPosition, newBlackBishopPiece);
-        addPiece(BlackKingPosition, newBlackKingPiece);
-        addPiece(BlackQueenPosition, newBlackQueenPiece);
-        addPiece(RightBlackRookPosition, newBlackRookPiece);
-        addPiece(RightBlackKnightPosition, newBlackKnightPiece);
-        addPiece(RightBlackBishopPosition, newBlackBishopPiece);
+        addPiece(leftBlackRookPosition, newBlackRookPiece);
+        addPiece(leftBlackKnightPosition, newBlackKnightPiece);
+        addPiece(leftBlackBishopPosition, newBlackBishopPiece);
+        addPiece(blackKingPosition, newBlackKingPiece);
+        addPiece(blackQueenPosition, newBlackQueenPiece);
+        addPiece(rightBlackRookPosition, newBlackRookPiece);
+        addPiece(rightBlackKnightPosition, newBlackKnightPiece);
+        addPiece(rightBlackBishopPosition, newBlackBishopPiece);
 
     }
 

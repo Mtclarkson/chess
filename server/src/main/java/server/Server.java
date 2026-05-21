@@ -205,7 +205,8 @@ public class Server {
 
             String joiningPlayerColor = joinRequest.playerColor();
 
-            if (joinRequest.gameID()==0 || joiningPlayerColor == null ||(!joiningPlayerColor.equals("WHITE") && !joiningPlayerColor.equals("BLACK"))) {
+            if (joinRequest.gameID()==0 || joiningPlayerColor == null ||
+                    (!joiningPlayerColor.equals("WHITE") && !joiningPlayerColor.equals("BLACK"))) {
                 throw new BadRequestException("Error: bad request");
             }
 
