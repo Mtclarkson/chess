@@ -17,13 +17,17 @@ public class GameService {
     }
 
     public ArrayList<GameData> listGames() throws DataAccessException {
+        if (gameDAO.listGames().isEmpty()) {
+            return new ArrayList<>();
+        }
         return gameDAO.listGames();
     }
 
     public GameData createGame(String gameName) throws DataAccessException {
         if (isNullOrBlank(gameName)) {
             return null;
-        } return gameDAO.createGame(gameName);
+        }
+        return gameDAO.createGame(gameName);
     }
 
     public GameData getGame(int givenGameID) throws DataAccessException {
