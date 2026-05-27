@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -20,7 +21,14 @@ public class UserSQLDatabase implements UserDAO {
         configureDatabase();
     }
 
+    private boolean isNullOrBlank(String input) {
+        return (input == null) || (input.isEmpty());
+    }
+
     public UserData createUser(UserData user) throws DataAccessException {
+        if (isNullOrBlank(user.username()) || isNullOrBlank(user.password())) {
+            return null;
+        }
         var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
         executeUpdate(statement, user.username(), user.password(), user.email());
         return new UserData(user.username(), user.password(), user.email());
