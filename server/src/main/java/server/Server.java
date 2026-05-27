@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 import service.*;
 import dataaccess.*;
 import io.javalin.*;
@@ -76,17 +77,18 @@ public class Server {
         try {//ask TAs about this one
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
 
-            // works?
             if (isNullOrBlank(user.username()) || isNullOrBlank(user.password()) || isNullOrBlank(user.email())) {
                 throw new BadRequestException("Error: bad request");
             }
 
-            // works?
             if (userService.getUser(user.username()) != null) {
                 throw new AlreadyTakenException("Error: already taken");
             }
 
-            user = userService.createUser(user);
+            // password encryption (super secure)
+            String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+
+            user = userService.createUser(new UserData(user.username(), hashedPassword, user.email()));
             AuthData authdata = authService.createAuth(new AuthData(UUID.randomUUID().toString(), user.username()));
             RegisterResult registerResult = new RegisterResult(user.username(), authdata.authToken());
             ctx.result(new Gson().toJson(registerResult));
@@ -109,7 +111,6 @@ public class Server {
         try { //ask TAs about this one
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
 
-            // works?
             if (isNullOrBlank(user.username()) || isNullOrBlank(user.password())) {
                 throw new BadRequestException("Error: bad request");
             }
@@ -117,7 +118,13 @@ public class Server {
             String givenPassword = user.password();
             user = userService.getUser(user.username());
 
-            if ((user == null) || (!user.password().equals(givenPassword))) {
+            if (user == null) {
+                throw new WrongPasswordException("Error: unauthorized");
+            }
+
+            String hashedPasswordFromDatabase = user.password();
+
+            if (!BCrypt.checkpw(givenPassword, hashedPasswordFromDatabase)) {
                 throw new WrongPasswordException("Error: unauthorized");
             }
 

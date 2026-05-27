@@ -1,6 +1,7 @@
 package dataaccess;
 
 import com.google.gson.Gson;
+import model.GameData;
 import model.UserData;
 
 import java.sql.Connection;
