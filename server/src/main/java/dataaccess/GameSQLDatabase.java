@@ -17,17 +17,28 @@ import static java.sql.Types.NULL;
 public class GameSQLDatabase implements GameDAO {
 
     public GameSQLDatabase() throws DataAccessException {
-        configureDatabase();
-    }
-
-    private boolean isNullOrBlank(String input) {
-        return (input == null) || (input.isEmpty());
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  game (
+              `gameID` int NOT NULL,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
+              `gameName` varchar(256) NOT NULL,
+              `gameData` TEXT NOT NULL,
+              PRIMARY KEY (`gameID`),
+              INDEX(whiteUsername),
+              INDEX(blackUsername),
+              INDEX(gameName)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+        DatabaseManager.configureDatabase(createStatements);
     }
 
     private int id = 0;
 
     public GameData createGame(String gameName) throws DataAccessException {
-        if (isNullOrBlank(gameName)) {
+        if (DatabaseManager.isNullOrBlank(gameName)) {
             return null;
         }
         id++;
@@ -36,7 +47,7 @@ public class GameSQLDatabase implements GameDAO {
         String gameSerialized = new Gson().toJson(newGame);
         var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, gameData) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(),
+        DatabaseManager.executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameSerialized);
         return gameData;
     }
@@ -83,14 +94,14 @@ public class GameSQLDatabase implements GameDAO {
         var statement = (playerColor.equals("WHITE")) ?
                 "UPDATE game SET whiteUsername = ? WHERE gameID = ?;" :
                 "UPDATE game SET blackUsername = ? WHERE gameID = ?;";
-        executeUpdate(statement, newUsername, gameID);
+        DatabaseManager.executeUpdate(statement, newUsername, gameID);
         return updatedGame;
     }
 
     public void clearAllGames() throws DataAccessException {
         id = 0;
         var statement = "TRUNCATE game";
-        executeUpdate(statement);
+        DatabaseManager.executeUpdate(statement);
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
@@ -100,50 +111,4 @@ public class GameSQLDatabase implements GameDAO {
                 rs.getString("gameName"), game);
     }
 
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("Error: unable to update database: %s, %s",
-                    statement, e.getMessage()));
-        }
-    }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  game (
-              `gameID` int NOT NULL,
-              `whiteUsername` varchar(256),
-              `blackUsername` varchar(256),
-              `gameName` varchar(256) NOT NULL,
-              `gameData` TEXT NOT NULL,
-              PRIMARY KEY (`gameID`),
-              INDEX(whiteUsername),
-              INDEX(blackUsername),
-              INDEX(gameName)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
-
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
-        }
-    }
 }
