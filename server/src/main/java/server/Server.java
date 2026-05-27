@@ -36,11 +36,18 @@ public class Server {
                 .get("/game", this::list)
                 .post("/game", this::create)
                 .put("/game", this::join);
-        AuthDAO authDAO = new AuthMemory();
+        AuthDAO authDAO;
+        UserDAO userDAO;
+        GameDAO gameDAO;
+        authDAO = new AuthMemory();
         this.authService = new AuthService(authDAO);
-        UserDAO userDAO = new UserMemory();
+        try {
+            userDAO = new UserSQLDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize user database: " + e.getMessage());
+        }
         this.userService = new UserService(userDAO);
-        GameDAO gameDAO = new GameMemory();
+        gameDAO = new GameMemory();
         this.gameService = new GameService(gameDAO);
     }
 

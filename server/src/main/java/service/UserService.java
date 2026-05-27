@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.*;
 import model.*;
-import server.Server;
 
 import java.util.ArrayList;
 

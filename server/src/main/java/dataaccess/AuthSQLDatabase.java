@@ -1,6 +1,5 @@
 package dataaccess;
 
-import com.google.gson.Gson;
 import model.UserData;
 
 import java.sql.Connection;
@@ -13,9 +12,9 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 
-public class UserSQLDatabase implements UserDAO {
+public class AuthSQLDatabase implements UserDAO {
 
-    public UserSQLDatabase() throws DataAccessException {
+    public AuthSQLDatabase() throws DataAccessException {
         configureDatabase();
     }
 
