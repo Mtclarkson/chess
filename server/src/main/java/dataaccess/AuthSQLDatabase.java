@@ -92,7 +92,8 @@ public class AuthSQLDatabase implements AuthDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(String.format("Error: unable to update database: %s, %s",
+                    statement, e.getMessage()));
         }
     }
 
