@@ -42,19 +42,19 @@ public class Server {
         try {
             authDAO = new AuthSQLDatabase();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to initialize auth database: " + e.getMessage());
+            throw new RuntimeException("Error: Failed to initialize auth database: " + e.getMessage());
         }
         this.authService = new AuthService(authDAO);
         try {
             userDAO = new UserSQLDatabase();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to initialize user database: " + e.getMessage());
+            throw new RuntimeException("Error: Failed to initialize user database: " + e.getMessage());
         }
         this.userService = new UserService(userDAO);
         try {
             gameDAO = new GameSQLDatabase();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to initialize game database: " + e.getMessage());
+            throw new RuntimeException("Error: Failed to initialize game database: " + e.getMessage());
         }
         this.gameService = new GameService(gameDAO);
     }
@@ -101,6 +101,7 @@ public class Server {
             ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         }
     }
 
@@ -154,6 +155,7 @@ public class Server {
             ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         }
     }
 
@@ -175,6 +177,7 @@ public class Server {
             ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         }
     }
 
@@ -205,6 +208,7 @@ public class Server {
             ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         } catch (Exception ex) {
             ctx.status(500);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
         }
     }
 
@@ -265,10 +269,15 @@ public class Server {
     }
 
     public void clear(Context ctx) throws DataAccessException {
-        authService.clearAllAuthTokens();
-        gameService.clearAllGames();
-        userService.clearAllUsers();
-        ctx.status(200);
+        try {
+            authService.clearAllAuthTokens();
+            gameService.clearAllGames();
+            userService.clearAllUsers();
+            ctx.status(200);
+        } catch (Exception ex) {
+            ctx.status(500);
+            ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
+        }
     }
 
 

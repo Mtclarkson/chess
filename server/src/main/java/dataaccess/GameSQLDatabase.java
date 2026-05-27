@@ -22,38 +22,11 @@ public class GameSQLDatabase implements GameDAO {
     }
 
     private int id = 0;
-//
-//    public ArrayList<GameData> listGames() {
-//        return games;
-//    }
-//
-//    public GameData createGame(String gameName) {
-//        id++;
-//        GameData game = new GameData(id, null, null, gameName, new ChessGame());
-//        games.add(game);
-//        return game;
-//    }
-//
-//    public GameData getGame(int givenGameID) throws DataAccessException {
-//        for (GameData game : games) {
-//            if (game.gameID() == givenGameID) {
-//                return game;
-//            }
-//        }
-//        return null;
-//    }
-//
-
-//
-//    public void clearAllGames() {
-//        games.clear();
-//        id = 0;
-//    }
 
     public GameData createGame(String gameName) throws DataAccessException {
         id++;
         ChessGame newGame = new ChessGame();
-        GameData gameData = new GameData(id, "null", "null", gameName, newGame);
+        GameData gameData = new GameData(id, null, null, gameName, newGame);
         String gameSerialized = new Gson().toJson(newGame);
         var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, gameData) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -74,7 +47,7 @@ public class GameSQLDatabase implements GameDAO {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
@@ -82,7 +55,7 @@ public class GameSQLDatabase implements GameDAO {
     public ArrayList<GameData> listGames() throws DataAccessException {
         var result = new ArrayList<GameData>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM user";
+            var statement = "SELECT * FROM game";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -91,7 +64,7 @@ public class GameSQLDatabase implements GameDAO {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return result;
     }
@@ -133,7 +106,7 @@ public class GameSQLDatabase implements GameDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -163,7 +136,7 @@ public class GameSQLDatabase implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 }
