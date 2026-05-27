@@ -21,9 +21,16 @@ public class GameSQLDatabase implements GameDAO {
         configureDatabase();
     }
 
+    private boolean isNullOrBlank(String input) {
+        return (input == null) || (input.isEmpty());
+    }
+
     private int id = 0;
 
     public GameData createGame(String gameName) throws DataAccessException {
+        if (isNullOrBlank(gameName)) {
+            return null;
+        }
         id++;
         ChessGame newGame = new ChessGame();
         GameData gameData = new GameData(id, null, null, gameName, newGame);
