@@ -53,7 +53,7 @@ public class GameSQLDatabase implements GameDAO {
     public GameData createGame(String gameName) throws DataAccessException {
         id++;
         ChessGame newGame = new ChessGame();
-        GameData gameData = new GameData(id, null, null, gameName, newGame);
+        GameData gameData = new GameData(id, "null", "null", gameName, newGame);
         String gameSerialized = new Gson().toJson(newGame);
         var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, gameData) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -141,15 +141,14 @@ public class GameSQLDatabase implements GameDAO {
             """
             CREATE TABLE IF NOT EXISTS  game (
               `gameID` int NOT NULL,
-              `whiteUsername` varchar(256) NOT NULL,
-              `blackUsername` varchar(256) NOT NULL,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
               `gameName` varchar(256) NOT NULL,
-              `gameData` varchar(256) NOT NULL,
+              `gameData` TEXT NOT NULL,
               PRIMARY KEY (`gameID`),
               INDEX(whiteUsername),
               INDEX(blackUsername),
-              INDEX(gameName),
-              INDEX(gameData)
+              INDEX(gameName)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
