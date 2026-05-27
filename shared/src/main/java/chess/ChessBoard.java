@@ -110,65 +110,6 @@ public class ChessBoard {
     }
 
     @Override
-    public String toString() {
-        Deque<String> boardPieces = new ArrayDeque<>();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                boardPieces.push("|");
-                if (squares[i][j] == null) {
-                    boardPieces.push(" ");
-                } else {
-                    if (squares[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        if (squares[i][j].getPieceType() == ChessPiece.PieceType.PAWN) {
-                            boardPieces.push("P");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
-                            boardPieces.push("K");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.QUEEN) {
-                            boardPieces.push("Q");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.BISHOP) {
-                            boardPieces.push("B");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KNIGHT) {
-                            boardPieces.push("N");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.ROOK) {
-                            boardPieces.push("R");
-                        }
-                    }
-                    if (squares[i][j].getTeamColor() == ChessGame.TeamColor.BLACK) {
-                        if (squares[i][j].getPieceType() == ChessPiece.PieceType.PAWN) {
-                            boardPieces.push("p");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KING) {
-                            boardPieces.push("k");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.QUEEN) {
-                            boardPieces.push("q");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.BISHOP) {
-                            boardPieces.push("b");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.KNIGHT) {
-                            boardPieces.push("n");
-                        }
-                        else if (squares[i][j].getPieceType() == ChessPiece.PieceType.ROOK) {
-                            boardPieces.push("r");
-                        }
-                    }
-                }
-            }
-            boardPieces.push("\n");
-        }
-
-
-
-        return boardPieces.toString();
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;

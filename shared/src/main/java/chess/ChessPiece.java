@@ -159,8 +159,8 @@ public class ChessPiece {
             i++;
             j++;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         // reset to original position
         i = myPosition.getRow();
@@ -170,8 +170,8 @@ public class ChessPiece {
             i--;
             j++;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         i = myPosition.getRow();
         j = myPosition.getColumn();
@@ -180,8 +180,8 @@ public class ChessPiece {
             i--;
             j--;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         i = myPosition.getRow();
         j = myPosition.getColumn();
@@ -190,8 +190,8 @@ public class ChessPiece {
             i++;
             j--;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         return possibleMoves;
     }
@@ -203,8 +203,8 @@ public class ChessPiece {
         while (i < 8) {
             i++;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         // reset to original position
         i = myPosition.getRow();
@@ -212,24 +212,24 @@ public class ChessPiece {
         while (i > 1) {
             i--;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         i = myPosition.getRow();
         // to the right
         while (j < 8) {
             j++;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         j = myPosition.getColumn();
         // to the left
         while (j > 1) {
             j--;
             MoveResult result = checkIfOk(i, j, board, myPosition, piece);
-            if (result.move() != null) possibleMoves.add(result.move());
-            if (!result.keepGoing()) break;
+            if (result.move() != null) {possibleMoves.add(result.move());}
+            if (!result.keepGoing()) {break;}
         }
         return possibleMoves;
     }
