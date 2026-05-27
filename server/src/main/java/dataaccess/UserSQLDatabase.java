@@ -1,7 +1,5 @@
 package dataaccess;
 
-import com.google.gson.Gson;
-import model.GameData;
 import model.UserData;
 
 import java.sql.Connection;
@@ -9,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;

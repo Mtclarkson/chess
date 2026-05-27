@@ -2,7 +2,6 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
 import model.GameData;
 
 import java.sql.Connection;
@@ -107,7 +106,7 @@ public class GameSQLDatabase implements GameDAO {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
                     if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof int p) ps.setInt(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
                     else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 ps.executeUpdate();
