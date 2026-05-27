@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,9 +12,9 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 
-public class AuthSQLDatabase implements AuthDAO {
+public class GameSQLDatabase implements AuthDAO {
 
-    public AuthSQLDatabase() throws DataAccessException {
+    public GameSQLDatabase() throws DataAccessException {
         configureDatabase();
     }
 

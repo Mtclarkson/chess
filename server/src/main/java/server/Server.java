@@ -39,7 +39,11 @@ public class Server {
         AuthDAO authDAO;
         UserDAO userDAO;
         GameDAO gameDAO;
-        authDAO = new AuthMemory();
+        try {
+            authDAO = new AuthSQLDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize user database: " + e.getMessage());
+        }
         this.authService = new AuthService(authDAO);
         try {
             userDAO = new UserSQLDatabase();
