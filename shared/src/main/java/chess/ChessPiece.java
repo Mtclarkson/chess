@@ -89,20 +89,20 @@ public class ChessPiece {
         return null;
     }
 
-    private boolean breakFlag = false;
+    private record MoveResult(ChessMove move, boolean keepGoing) {}
 
-    private ChessMove checkIfOk(int i, int j, ChessBoard board,
-                                ChessPosition myPosition, ChessPiece piece) {
+    private MoveResult checkIfOk(int i, int j, ChessBoard board,
+                                 ChessPosition myPosition, ChessPiece piece) {
         ChessPosition newPosition = new ChessPosition(i, j);
         ChessPiece targetPiece = board.getPiece(newPosition);
+        ChessMove move = new ChessMove(myPosition, newPosition, null);
+
         if (targetPiece == null) {
-            return new ChessMove(myPosition, newPosition, null);
+            return new MoveResult(move, true); // empty square, keep sliding
         } else if (targetPiece.getTeamColor() != piece.getTeamColor()) {
-            breakFlag = true;
-            return new ChessMove(myPosition, newPosition, null);
+            return new MoveResult(move, false); // enemy, capture and stop
         } else {
-            breakFlag = true;
-            return null;
+            return new MoveResult(null, false); // friendly, stop, no move
         }
     }
 
@@ -158,14 +158,9 @@ public class ChessPiece {
         while((i< 8)&&(j< 8)) {
             i++;
             j++;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {
-                possibleMoves.add(okMove);
-            }
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
         // reset to original position
         i = myPosition.getRow();
@@ -174,14 +169,9 @@ public class ChessPiece {
         while((i > 1) && (j < 8)) {
             i--;
             j++;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {
-                possibleMoves.add(okMove);
-            }
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
         i = myPosition.getRow();
         j = myPosition.getColumn();
@@ -189,29 +179,19 @@ public class ChessPiece {
         while((i > 1 ) && (j > 1)) {
             i--;
             j--;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {
-                possibleMoves.add(okMove);
-            }
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
-        i =myPosition.getRow();
-        j =myPosition.getColumn();
+        i = myPosition.getRow();
+        j = myPosition.getColumn();
         // up and to the left
         while((i < 8) && (j > 1)) {
             i++;
             j--;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {
-                possibleMoves.add(okMove);
-            }
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
         return possibleMoves;
     }
@@ -222,46 +202,34 @@ public class ChessPiece {
         // up
         while (i < 8) {
             i++;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {possibleMoves.add(okMove);}
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
         // reset to original position
         i = myPosition.getRow();
         // down
         while (i > 1) {
             i--;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {possibleMoves.add(okMove);}
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
         i = myPosition.getRow();
         // to the right
         while (j < 8) {
             j++;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {possibleMoves.add(okMove);}
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
         j = myPosition.getColumn();
         // to the left
         while (j > 1) {
             j--;
-            ChessMove okMove = checkIfOk(i, j, board, myPosition, piece);
-            if (okMove != null) {possibleMoves.add(okMove);}
-            if (breakFlag) {
-                breakFlag = false;
-                break;
-            }
+            MoveResult result = checkIfOk(i, j, board, myPosition, piece);
+            if (result.move() != null) possibleMoves.add(result.move());
+            if (!result.keepGoing()) break;
         }
         return possibleMoves;
     }

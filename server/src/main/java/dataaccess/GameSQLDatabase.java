@@ -43,14 +43,7 @@ public class GameSQLDatabase implements GameDAO {
 //        return null;
 //    }
 //
-//    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
-//        GameData game = getGame(gameID);
-//        GameData updatedGame = (playerColor.equals("WHITE")) ? new GameData(gameID, newUsername, game.blackUsername() ,game.gameName(), game.game()) :
-//                new GameData(gameID, game.whiteUsername(), newUsername, game.gameName(), game.game());
-//        games.remove(game);
-//        games.add(updatedGame);
-//        return updatedGame;
-//    }
+
 //
 //    public void clearAllGames() {
 //        games.clear();
@@ -65,7 +58,7 @@ public class GameSQLDatabase implements GameDAO {
         var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, gameData) " +
                 "VALUES (?, ?, ?, ?, ?)";
         executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(),
-                gameData.blackUsername(), gameData.gameName(), gameData.game());
+                gameData.blackUsername(), gameData.gameName(), gameSerialized);
         return gameData;
     }
 
@@ -103,7 +96,20 @@ public class GameSQLDatabase implements GameDAO {
         return result;
     }
 
+    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
+        GameData game = getGame(gameID);
+        GameData updatedGame = (playerColor.equals("WHITE")) ?
+                new GameData(gameID, newUsername, game.blackUsername(), game.gameName(), game.game()) :
+                new GameData(gameID, game.whiteUsername(), newUsername, game.gameName(), game.game());
+        var statement = (playerColor.equals("WHITE")) ?
+                "UPDATE game SET whiteUsername = ? WHERE gameID = ?;" :
+                "UPDATE game SET blackUsername = ? WHERE gameID = ?;";
+        executeUpdate(statement, newUsername, gameID);
+        return updatedGame;
+    }
+
     public void clearAllGames() throws DataAccessException {
+        id = 0;
         var statement = "TRUNCATE game";
         executeUpdate(statement);
     }

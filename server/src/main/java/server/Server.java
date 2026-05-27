@@ -42,7 +42,7 @@ public class Server {
         try {
             authDAO = new AuthSQLDatabase();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to initialize user database: " + e.getMessage());
+            throw new RuntimeException("Failed to initialize auth database: " + e.getMessage());
         }
         this.authService = new AuthService(authDAO);
         try {
@@ -51,7 +51,11 @@ public class Server {
             throw new RuntimeException("Failed to initialize user database: " + e.getMessage());
         }
         this.userService = new UserService(userDAO);
-        gameDAO = new GameMemory();
+        try {
+            gameDAO = new GameSQLDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize game database: " + e.getMessage());
+        }
         this.gameService = new GameService(gameDAO);
     }
 
