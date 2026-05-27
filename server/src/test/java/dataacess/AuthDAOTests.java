@@ -1,8 +1,9 @@
 package dataacess;
 
+import dataaccess.AuthDAO;
+import dataaccess.AuthSQLDatabase;
 import dataaccess.DataAccessException;
-import dataaccess.UserDAO;
-import dataaccess.UserSQLDatabase;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,90 +19,112 @@ public class AuthDAOTests {
     public AuthDAOTests() throws DataAccessException {
     }
 
-    private final UserDAO db = new UserSQLDatabase();
+    private final AuthDAO db = new AuthSQLDatabase();
 
     @BeforeEach
     void clear() throws DataAccessException {
-        db.clearAllUsers();
+        db.clearAllAuthTokens();
     }
 
-    // positive createUser
+    // positive createAuth
     @Test
-    void createUserTest() throws DataAccessException {
-        db.createUser(new UserData("newUsername", "joeMama", "joe@mama.org"));
-        db.createUser(new UserData("otherUsername", "joeDada", "joe@dada.org"));
+    void createAuthTest() throws DataAccessException {
+        db.createAuth(new AuthData("randomtoken","username"));
+        db.createAuth(new AuthData("randomtoken2","username2"));
 
-        assertEquals(2, db.usersList().size());
+        assertEquals(2, db.authList().size());
     }
 
-    // negative createUser
+    // negative createAuth
     @Test
-    void createUserBadRequestTest() throws DataAccessException {
-        UserData newUser = new UserData("", "joeMama", "joe@mama.org");
-        newUser = db.createUser(newUser);
-        assertNull(newUser);
+    void createAuthBadRequestTest() throws DataAccessException {
+        db.createAuth(new AuthData("randomtoken",""));
+        db.createAuth(new AuthData("","username2"));
+
+        assertEquals(0, db.authList().size());
     }
 
-    // positive getUser
+    // positive getAuth
     @Test
-    void getUserTest() throws DataAccessException {
-        UserData createdUser = db.createUser(new UserData("newUsername", "joeMama", "joe@mama.org"));
-        UserData retrievedUser = db.getUser("newUsername");
-        assertUsersEqual(createdUser, retrievedUser);
+    void getAuthTest() throws DataAccessException {
+        AuthData expected = db.createAuth(new AuthData("randomtoken","username"));
+        AuthData actual = db.getAuth("randomtoken");
+        assertEquals(expected, actual);
     }
 
-    // negative createUser
+    // negative createAuth
     @Test
-    void getUserDoesntExistTest() throws DataAccessException {
-        db.createUser(new UserData("newUsername", "joeMama", "joe@mama.org"));
-        UserData retrievedUser = db.getUser("wrongUsername");
-        assertNull(retrievedUser);
+    void getAuthDoesntExistTest() throws DataAccessException {
+        AuthData actual = db.getAuth("randomtoken");
+        assertNull(actual);
     }
 
-    // positive listUsers
+    // positive deleteAuths
     @Test
-    void listUsersTest() throws DataAccessException {
-        ArrayList<UserData> expectedList = new ArrayList<>();
+    void deleteAuthsTest() throws DataAccessException {
+        AuthData auth1 = db.createAuth(new AuthData("randomtoken","username"));
+        AuthData auth2 = db.createAuth(new AuthData("randomtoken2","username2"));
 
-        UserData data1 = db.createUser(new UserData("newUsername", "joeMama", "joe@mama.org"));
-        UserData data2 = db.createUser(new UserData("otherUsername", "joeDada", "joe@dada.org"));
+        db.deleteAuth(auth1);
+        db.deleteAuth(auth2);
 
-        expectedList.add(data1);
-        expectedList.add(data2);
+        assertEquals(0, db.authList().size());
+    }
 
-        assertUserCollectionEqual(expectedList, db.usersList());
+    // negative test for deleteAuth();
+    @Test
+    void deleteAuthAlreadyDeletedTest() throws DataAccessException {
+        AuthData auth1 = db.createAuth(new AuthData("randomtoken","username"));
+        AuthData auth2 = db.createAuth(new AuthData("randomtoken2","username2"));
+
+        db.deleteAuth(auth1);
+        db.deleteAuth(auth1);
+        assertEquals(1, db.authList().size());
+    }
+
+    @Test
+    void listAuthsTest() throws DataAccessException {
+        ArrayList<AuthData> expectedList = new ArrayList<>();
+
+        AuthData auth1 = db.createAuth(new AuthData("randomtoken","username"));
+        AuthData auth2 = db.createAuth(new AuthData("randomtoken2","username2"));
+
+        expectedList.add(auth1);
+        expectedList.add(auth2);
+
+        assertAuthCollectionEqual(expectedList, db.authList());
     }
 
     // negative listUsers
     @Test
     void listUsersBadRequestsTest() throws DataAccessException {
-        db.createUser(new UserData("newUsername", "", "joe@mama.org"));
-        db.createUser(new UserData("", "joeDada", "joe@dada.org"));
+        db.createAuth(new AuthData("","username"));
+        db.createAuth(new AuthData("randomtoken2",""));
 
-        assertEquals(0, db.usersList().size());
+        assertEquals(0, db.authList().size());
     }
 
-    // positive clearAllUsers
+    // positive clearAllAuths
     @Test
-    void clearAllUsersTest() throws DataAccessException {
-        db.createUser(new UserData("newUsername", "joeMama", "joe@mama.org"));
-        db.createUser(new UserData("otherUsername", "joeDada", "joe@dada.org"));
-        db.clearAllUsers();
+    void clearAllAuthsTest() throws DataAccessException {
+        db.createAuth(new AuthData("randomtoken","username"));
+        db.createAuth(new AuthData("randomtoken2","username2"));
+        db.clearAllAuthTokens();
 
-        assertEquals(0, db.usersList().size());
+        assertEquals(0, db.authList().size());
     }
 
-    public static void assertUsersEqual(UserData expected, UserData actual) {
+    public static void assertAuthsEqual(AuthData expected, AuthData actual) {
         assertEquals(expected.username(), actual.username());
         // maybe also check email and password
     }
 
-    public static void assertUserCollectionEqual(Collection<UserData> expected, Collection<UserData> actual) {
-        UserData[] actualList = actual.toArray(new UserData[]{});
-        UserData[] expectedList = expected.toArray(new UserData[]{});
+    public static void assertAuthCollectionEqual(Collection<AuthData> expected, Collection<AuthData> actual) {
+        AuthData[] actualList = actual.toArray(new AuthData[]{});
+        AuthData[] expectedList = expected.toArray(new AuthData[]{});
         assertEquals(expectedList.length, actualList.length);
         for (int i = 0; i < actualList.length; i++) {
-            assertUsersEqual(expectedList[i], actualList[i]);
+            assertAuthsEqual(expectedList[i], actualList[i]);
         }
     }
 }

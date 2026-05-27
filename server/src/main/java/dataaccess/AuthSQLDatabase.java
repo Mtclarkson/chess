@@ -19,7 +19,14 @@ public class AuthSQLDatabase implements AuthDAO {
         configureDatabase();
     }
 
+    private boolean isNullOrBlank(String input) {
+        return (input == null) || (input.isEmpty());
+    }
+
     public AuthData createAuth(AuthData auth) throws DataAccessException {
+        if (isNullOrBlank(auth.authToken()) || isNullOrBlank(auth.username())) {
+            return null;
+        }
         var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
         executeUpdate(statement, auth.authToken(), auth.username());
         return new AuthData(auth.authToken(), auth.username());
@@ -45,7 +52,7 @@ public class AuthSQLDatabase implements AuthDAO {
     public ArrayList<AuthData> authList() throws DataAccessException {
         var result = new ArrayList<AuthData>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM user";
+            var statement = "SELECT * FROM auth";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
