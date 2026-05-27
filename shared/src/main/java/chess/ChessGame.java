@@ -15,7 +15,6 @@ public class ChessGame {
 
     ChessBoard gameboard = new ChessBoard();
     TeamColor currentTeam;
-    public boolean canCastleFlag = true;
 
     public ChessGame() {
         gameboard.resetBoard();

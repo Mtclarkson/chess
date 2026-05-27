@@ -1,6 +1,9 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,51 +15,68 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 
-public class GameSQLDatabase implements AuthDAO {
+public class GameSQLDatabase implements GameDAO {
 
     public GameSQLDatabase() throws DataAccessException {
         configureDatabase();
     }
 
-//    public AuthData getAuth(String givenAuthToken) throws DataAccessException {
-//        for (AuthData authData : authTokens) {
-//            if (authData.authToken().equals(givenAuthToken)) {
-//                return authData;
+    private int id = 0;
+//
+//    public ArrayList<GameData> listGames() {
+//        return games;
+//    }
+//
+//    public GameData createGame(String gameName) {
+//        id++;
+//        GameData game = new GameData(id, null, null, gameName, new ChessGame());
+//        games.add(game);
+//        return game;
+//    }
+//
+//    public GameData getGame(int givenGameID) throws DataAccessException {
+//        for (GameData game : games) {
+//            if (game.gameID() == givenGameID) {
+//                return game;
 //            }
 //        }
 //        return null;
 //    }
 //
-//    public AuthData createAuth(AuthData authData) throws DataAccessException {
-//        authData = new AuthData(authData.authToken(), authData.username());
-//        authTokens.add(authData);
-//        return authData;
+//    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
+//        GameData game = getGame(gameID);
+//        GameData updatedGame = (playerColor.equals("WHITE")) ? new GameData(gameID, newUsername, game.blackUsername() ,game.gameName(), game.game()) :
+//                new GameData(gameID, game.whiteUsername(), newUsername, game.gameName(), game.game());
+//        games.remove(game);
+//        games.add(updatedGame);
+//        return updatedGame;
 //    }
 //
-//    public void deleteAuth(AuthData authData) throws DataAccessException {
-//        authTokens.remove(authData);
+//    public void clearAllGames() {
+//        games.clear();
+//        id = 0;
 //    }
-//
-//    public ArrayList<AuthData> authList() throws DataAccessException {
-//        return authTokens;
-//    }
-//
-//    public void clearAllAuthTokens() {authTokens.clear();}
 
-    public AuthData createAuth(AuthData auth) throws DataAccessException {
-        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        executeUpdate(statement, auth.authToken(), auth.username());
-        return new AuthData(auth.authToken(), auth.username());
+    public GameData createGame(String gameName) throws DataAccessException {
+        id++;
+        ChessGame newGame = new ChessGame();
+        GameData gameData = new GameData(id, null, null, gameName, newGame);
+        String gameSerialized = new Gson().toJson(newGame);
+        var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, gameData) " +
+                "VALUES (?, ?, ?, ?, ?)";
+        executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(),
+                gameData.blackUsername(), gameData.gameName(), gameData.game());
+        return gameData;
     }
 
-    public AuthData getAuth(String authTokenGiven) throws DataAccessException {
+    public GameData getGame(int gameID) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM auth WHERE authToken=?";
+            var statement = "SELECT * FROM game WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, authTokenGiven);
+                ps.setInt(1, gameID);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return readAuth(rs);
+                        return readGame(rs);
                     }
                 }
             }
@@ -66,14 +86,14 @@ public class GameSQLDatabase implements AuthDAO {
         return null;
     }
 
-    public ArrayList<AuthData> authList() throws DataAccessException {
-        var result = new ArrayList<AuthData>();
+    public ArrayList<GameData> listGames() throws DataAccessException {
+        var result = new ArrayList<GameData>();
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM user";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        result.add(readAuth(rs));
+                        result.add(readGame(rs));
                     }
                 }
             }
@@ -83,19 +103,16 @@ public class GameSQLDatabase implements AuthDAO {
         return result;
     }
 
-    public void deleteAuth(AuthData auth) throws DataAccessException {
-        var statement = "DELETE FROM auth WHERE authToken=?";
-        executeUpdate(statement, auth.authToken());
-    }
-
-    public void clearAllAuthTokens() throws DataAccessException {
-        var statement = "TRUNCATE auth";
+    public void clearAllGames() throws DataAccessException {
+        var statement = "TRUNCATE game";
         executeUpdate(statement);
     }
 
-    private AuthData readAuth(ResultSet rs) throws SQLException {
-        return new AuthData(rs.getString("authToken"),
-                rs.getString("username"));
+    private GameData readGame(ResultSet rs) throws SQLException {
+        ChessGame game = new Gson().fromJson(rs.getString("gameData"), ChessGame.class);
+        return new GameData(rs.getInt("gameID"),
+                rs.getString("whiteUsername"), rs.getString("blackUsername"),
+                rs.getString("gameName"), game);
     }
 
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
@@ -104,6 +121,7 @@ public class GameSQLDatabase implements AuthDAO {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
                     if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof int p) ps.setInt(i + 1, p);
                     else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 ps.executeUpdate();
@@ -115,11 +133,17 @@ public class GameSQLDatabase implements AuthDAO {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  auth (
-              `authToken` varchar(256) NOT NULL,
-              `username` varchar(256) NOT NULL,
-              PRIMARY KEY (`authToken`),
-              INDEX(username)
+            CREATE TABLE IF NOT EXISTS  game (
+              `gameID` int NOT NULL,
+              `whiteUsername` varchar(256) NOT NULL,
+              `blackUsername` varchar(256) NOT NULL,
+              `gameName` varchar(256) NOT NULL,
+              `gameData` varchar(256) NOT NULL,
+              PRIMARY KEY (`gameID`),
+              INDEX(whiteUsername),
+              INDEX(blackUsername),
+              INDEX(gameName),
+              INDEX(gameData)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
