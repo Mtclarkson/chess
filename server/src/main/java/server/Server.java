@@ -26,7 +26,7 @@ public class Server {
     record CreateResult(int gameID) {}
     record JoinRequest(String playerColor, int gameID) {}
 
-
+    // make request and results classes in shared
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
