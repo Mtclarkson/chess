@@ -51,6 +51,7 @@ public class ServerFacade {
     }
 
     public ListResult list (ListRequest request) throws Exception {
+        authToken = request.authToken();
         var req = buildRequest("GET", "/game", request);
         var response = sendRequest(req);
         return handleResponse(response, ListResult.class);

@@ -86,7 +86,7 @@ public class ServerFacadeTests {
     @Test
     void createGameUnauthorizedTest() throws Exception {
         RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
-        facade.register(regRequest).authToken();
+        facade.register(regRequest);
         CreateRequest createRequest = new CreateRequest("gametime!", "pee pee poo poo");
 
         assertThrows(Exception.class, () -> facade.create(createRequest));
@@ -140,18 +140,50 @@ public class ServerFacadeTests {
         RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
         String authToken = facade.register(regRequest).authToken();
 
-        LogoutRequest logoutRequest = new LogoutRequest("bruh");
-        assertThrows(Exception.class, () -> facade.logout(logoutRequest));
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        facade.logout(logoutRequest);
+
+        ListRequest listRequest = new ListRequest(authToken);
+        assertThrows(Exception.class, () -> facade.list(listRequest));
     }
 
-//    @Test
-//    void clearTest() throws Exception {
-//        RegisterRequest regRequest1 = new RegisterRequest("player1", "password", "p1@email.com");
-//        facade.register(regRequest1);
-//        RegisterRequest regRequest2 = new RegisterRequest("player1", "password", "p1@email.com");
-//        facade.register(regRequest2);
-//        facade.clear(new ClearRequest());
-//
-//    }
+    @Test
+    void listGamesTest() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        String authToken = facade.register(regRequest).authToken();
+        CreateRequest createRequest = new CreateRequest("gametime!", authToken);
+        facade.create(createRequest);
+        CreateRequest createRequest2 = new CreateRequest("randomExtra!", authToken);
+        facade.create(createRequest2);
+        ListRequest listRequest = new ListRequest(authToken);
+        ArrayList<GameData> listyBoy = facade.list(listRequest).games();
+        assertEquals("gametime!", listyBoy.getFirst().gameName());
+        assertEquals("randomExtra!", listyBoy.get(1).gameName());
+    }
+
+    @Test
+    void listGamesUnauthorizedTest() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        String authToken = facade.register(regRequest).authToken();
+        CreateRequest createRequest = new CreateRequest("gametime!", authToken);
+        facade.create(createRequest);
+        CreateRequest createRequest2 = new CreateRequest("randomExtra!", authToken);
+        facade.create(createRequest2);
+        ListRequest listRequest = new ListRequest("yo mama");
+        assertThrows(Exception.class, () -> facade.list(listRequest));
+    }
+
+    @Test
+    void clearTest() throws Exception {
+        RegisterRequest regRequest1 = new RegisterRequest("player1", "password", "p1@email.com");
+        facade.register(regRequest1);
+        RegisterRequest regRequest2 = new RegisterRequest("player2", "password2", "p2@email.com");
+        facade.register(regRequest2);
+        facade.clear(new ClearRequest());
+
+        LoginRequest loginRequest = new LoginRequest("player1", "password");
+
+        assertThrows(Exception.class, () -> facade.login(loginRequest));
+    }
 
 }
