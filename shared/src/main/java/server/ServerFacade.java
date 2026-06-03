@@ -40,6 +40,7 @@ public class ServerFacade {
     }
 
     public void join (JoinRequest request) throws Exception {
+        request = new JoinRequest(request.playerColor().toUpperCase(), request.gameID(), request.authToken());
         var req = buildRequest("PUT", "/game", request);
         sendRequest(req);
     }

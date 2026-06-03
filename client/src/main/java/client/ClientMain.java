@@ -19,7 +19,7 @@ public class ClientMain {
             preloginClient.run();
             authToken = preloginClient.authToken;
             new PostLoginClient(serverUrl, authToken).run();
-            // new GameplayClient(serverUrl).run();
+            new GameplayClient(serverUrl, authToken).run();
 
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
