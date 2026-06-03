@@ -6,6 +6,8 @@ import java.util.Scanner;
 import com.google.gson.Gson;
 import model.*;
 import server.ServerFacade;
+import requests.*;
+import results.*;
 
 import javax.management.Notification;
 
@@ -14,7 +16,6 @@ import static ui.EscapeSequences.*;
 public class PreLoginClient {
     private ServerFacade server;
     private State state = State.PRE_LOGIN;
-    private String username, password, email;
 
     public PreLoginClient(String serverUrl) throws Exception {
         server = new ServerFacade(serverUrl);
@@ -71,11 +72,12 @@ public class PreLoginClient {
     // make new register request
     public String register(String... params) throws Exception {
         if (params.length == 3) {
-            username = params[0];
-            password = params[1];
-            email = params[2];
-            RegisterResult blah = server.register(username, password, email);
-            return String.format("Registration success! Welcome, %s", blah.username);
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+            RegisterResult registerResult = server.register(registerRequest);
+            return String.format("Registration success! Welcome, %s", registerResult.username());
         }
         throw new Exception("Expected: <yourname>");
     }

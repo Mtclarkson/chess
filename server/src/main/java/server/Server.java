@@ -2,13 +2,14 @@ package server;
 
 import com.google.gson.Gson;
 import model.*;
+import requests.*;
+import results.*;
 import org.mindrot.jbcrypt.BCrypt;
 import service.*;
 import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -19,12 +20,6 @@ public class Server {
     private final AuthService authService;
     private final UserService userService;
     private final GameService gameService;
-
-    record RegisterResult(String username, String authToken) {}
-    record LoginResult(String username, String authToken) {}
-    record ListResult(ArrayList<GameData> games) {}
-    record CreateResult(int gameID) {}
-    record JoinRequest(String playerColor, int gameID) {}
 
     // make request and results classes in shared
 
