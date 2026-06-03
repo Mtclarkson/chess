@@ -20,10 +20,12 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 public class GameplayClient {
     private final ServerFacade server;
     private final String authToken;
+    private GameData gameData;
 
-    public GameplayClient(String serverUrl, String authToken) {
+    public GameplayClient(String serverUrl, String authToken, GameData gameData) {
         server = new ServerFacade(serverUrl);
         this.authToken = authToken;
+        this.gameData = gameData;
     }
 
     public void run() {
@@ -57,6 +59,7 @@ public class GameplayClient {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "show" -> drawBoard();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -67,8 +70,15 @@ public class GameplayClient {
 
     public String help() {
         return """
-                - you entered gameplay
+                - show - board
+                - quit
+                - help - see these options again
                 """;
     }
+
+    private String drawBoard() {
+        return gameData.toString();
+    }
+
 }
 

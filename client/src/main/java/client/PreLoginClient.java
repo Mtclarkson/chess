@@ -12,7 +12,6 @@ import static ui.EscapeSequences.*;
 
 public class PreLoginClient {
     private final ServerFacade server;
-    public String username;
     public String authToken;
     private boolean loggedIn = false;
 
@@ -48,7 +47,7 @@ public class PreLoginClient {
 //    }
 
     private void printPrompt() {
-        System.out.print("\n>>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n[LOGGED OUT]>>> " + SET_TEXT_COLOR_GREEN);
     }
 
 
@@ -92,7 +91,7 @@ public class PreLoginClient {
             loggedIn = true;
             return String.format("Logged in. Welcome back, %s", loginResult.username());
         }
-        throw new Exception("Expected: <username> <password> <email>");
+        throw new Exception("Expected: <username> <password>");
     }
 
     public String help() {

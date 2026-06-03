@@ -96,11 +96,11 @@ public class ServerFacade {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
-            if (body != null) {
-                throw new Exception("Error: " + status);
-            }
             if (status == 401) {
-                throw new Exception("Password is incorrect");
+                throw new Exception("username or password is incorrect.");
+            }
+            if (body != null) {
+                throw new Exception("Response body is empty");
             }
             throw new Exception("Error: " + status);
         }

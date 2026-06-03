@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import model.GameData;
 
 public class ClientMain {
 
@@ -12,14 +13,19 @@ public class ClientMain {
 
         String authToken;
         String username;
+        GameData gameData;
 
         try {
 
             PreLoginClient preloginClient = new PreLoginClient(serverUrl);
             preloginClient.run();
             authToken = preloginClient.authToken;
-            new PostLoginClient(serverUrl, authToken).run();
-            new GameplayClient(serverUrl, authToken).run();
+
+            PostLoginClient postLoginClient = new PostLoginClient(serverUrl, authToken);
+            postLoginClient.run();
+            gameData = postLoginClient.joinedGameData;
+
+            new GameplayClient(serverUrl, authToken, gameData).run();
 
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
