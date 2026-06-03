@@ -12,7 +12,7 @@ public class ClientMain {
         }
 
         String authToken;
-        String username;
+        String playerColor;
         GameData gameData;
 
         try {
@@ -24,8 +24,9 @@ public class ClientMain {
             PostLoginClient postLoginClient = new PostLoginClient(serverUrl, authToken);
             postLoginClient.run();
             gameData = postLoginClient.joinedGameData;
+            playerColor = postLoginClient.playerColor;
 
-            new GameplayClient(serverUrl, authToken, gameData).run();
+            new GameplayClient(serverUrl, authToken, gameData, playerColor).run();
 
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());

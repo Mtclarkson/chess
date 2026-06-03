@@ -22,6 +22,7 @@ public class PostLoginClient {
     private final ServerFacade server;
     private final String authToken;
     private boolean joinedGame = false;
+    public String playerColor;
     public GameData joinedGameData;
     Map<String, Integer> gameNumberMap = new HashMap<>();
 
@@ -85,6 +86,7 @@ public class PostLoginClient {
             String gameName = params[0];
             CreateRequest createRequest = new CreateRequest(gameName, authToken);
             CreateResult createResult = server.create(createRequest);
+            gameNumberMap.put(String.valueOf(gameNumberMap.size()+1), createResult.gameID());
             return String.format("Game added. New game ID: %d\n", createResult.gameID());
         }
         throw new Exception("Expected: <gamename>");
@@ -108,10 +110,13 @@ public class PostLoginClient {
         return displayList;
     }
 
+    // investigate playing game 1... or as white?
+    // Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Map.get(Object)" is null
     public String join(String... params) throws Exception {
-        if (params.length == 2) {
+        if ((params.length == 2) && (Integer.parseInt(params[0]) > 0) &&
+                (Integer.parseInt(params[0]) <= gameNumberMap.size())) {
             String gameNumber = params[0];
-            String playerColor = params[1];
+            playerColor = params[1];
             int gameID = gameNumberMap.get(gameNumber);
             JoinRequest joinRequest = new JoinRequest(playerColor, gameID, authToken);
             server.join(joinRequest);
@@ -127,7 +132,7 @@ public class PostLoginClient {
 
             return String.format("Joined game: %s", gameNumber);
         }
-        throw new Exception("Expected: <game number> <player color>");
+        throw new Exception("Expected: <game number listed> <player color>");
     }
 
     public String watch(String... params) throws Exception {
