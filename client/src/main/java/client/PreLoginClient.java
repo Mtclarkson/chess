@@ -3,19 +3,18 @@ package client;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import com.google.gson.Gson;
 import model.*;
 import server.ServerFacade;
 import requests.*;
 import results.*;
 
-import javax.management.Notification;
-
 import static ui.EscapeSequences.*;
 
 public class PreLoginClient {
-    private ServerFacade server;
-    private State state = State.PRE_LOGIN;
+    private final ServerFacade server;
+    public String username;
+    public String authToken;
+    private boolean loggedIn = false;
 
     public PreLoginClient(String serverUrl) throws Exception {
         server = new ServerFacade(serverUrl);
@@ -23,11 +22,11 @@ public class PreLoginClient {
 
     public void run() {
         System.out.println("Welcome to chess");
-        //System.out.print(help());
+        System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (!result.equals("quit") && !loggedIn) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -69,7 +68,6 @@ public class PreLoginClient {
         }
     }
 
-    // make new register request
     public String register(String... params) throws Exception {
         if (params.length == 3) {
             String username = params[0];
@@ -77,13 +75,24 @@ public class PreLoginClient {
             String email = params[2];
             RegisterRequest registerRequest = new RegisterRequest(username, password, email);
             RegisterResult registerResult = server.register(registerRequest);
-            return String.format("Registration success! Welcome, %s", registerResult.username());
+            authToken = registerResult.authToken();
+            loggedIn = true;
+            return String.format("Registration success! Welcome, %s\n", registerResult.username());
         }
-        throw new Exception("Expected: <yourname>");
+        throw new Exception("Expected: <username> <password> <email>\n");
     }
 
     public String login(String... params) throws Exception {
-        return "";
+        if (params.length == 2) {
+            String username = params[0];
+            String password = params[1];
+            LoginRequest loginRequest = new LoginRequest(username, password);
+            LoginResult loginResult = server.login(loginRequest);
+            authToken = loginResult.authToken();
+            loggedIn = true;
+            return String.format("Logged in. Welcome back, %s", loginResult.username());
+        }
+        throw new Exception("Expected: <username> <password> <email>");
     }
 
     public String help() {

@@ -98,7 +98,9 @@ public class ServerFacade {
             if (body != null) {
                 throw new Exception("Error: " + status);
             }
-
+            if (status == 401) {
+                throw new Exception("Password is incorrect");
+            }
             throw new Exception("Error: " + status);
         }
 

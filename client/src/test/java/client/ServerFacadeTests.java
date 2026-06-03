@@ -36,7 +36,9 @@ public class ServerFacadeTests {
     }
 
     @AfterAll
-    static void stopServer() {
+    static void stopServer() throws Exception {
+        ClearRequest clrRequest = new ClearRequest();
+        facade.clear(clrRequest);
         server.stop();
     }
 

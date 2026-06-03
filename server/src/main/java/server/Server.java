@@ -11,7 +11,6 @@ import io.javalin.*;
 import io.javalin.http.Context;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 public class Server {
