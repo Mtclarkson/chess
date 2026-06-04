@@ -13,7 +13,8 @@ import static ui.EscapeSequences.*;
 public class PreLoginClient {
     private final ServerFacade server;
     public String authToken;
-    private boolean loggedIn = false;
+    public boolean loggedIn = false;
+    public boolean quitted = false;
 
     public PreLoginClient(String serverUrl) throws Exception {
         server = new ServerFacade(serverUrl);
@@ -36,6 +37,9 @@ public class PreLoginClient {
                 var msg = e.toString();
                 System.out.print(msg);
             }
+        }
+        if (result.equals("quit")) {
+            quitted = true;
         }
         System.out.println();
     }

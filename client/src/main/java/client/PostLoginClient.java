@@ -21,7 +21,8 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 public class PostLoginClient {
     private final ServerFacade server;
     private final String authToken;
-    private boolean joinedGame = false;
+    public boolean joinedGame = false;
+    public boolean loggedOut = false;
     public String playerColor;
     public GameData joinedGameData;
     Map<String, Integer> gameNumberMap = new HashMap<>();
@@ -36,7 +37,7 @@ public class PostLoginClient {
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit") && !joinedGame) {
+        while (!loggedOut && !joinedGame) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -67,7 +68,6 @@ public class PostLoginClient {
                 case "list" -> list().toString();
                 case "play" -> join(params);
                 case "watch" -> watch(params);
-                case "quit" -> "quit";
                 default -> help();
             };
         } catch (Exception ex) {
@@ -78,15 +78,17 @@ public class PostLoginClient {
     public String logout() throws Exception {
         LogoutRequest logoutRequest = new LogoutRequest(authToken);
         server.logout(logoutRequest);
+        loggedOut = true;
         return "Logged out.\n";
     }
 
+    //debug
     public String create(String... params) throws Exception {
         if (params.length == 1) {
             String gameName = params[0];
             CreateRequest createRequest = new CreateRequest(gameName, authToken);
             CreateResult createResult = server.create(createRequest);
-            gameNumberMap.put(String.valueOf(gameNumberMap.size()+1), createResult.gameID());
+            list();
             return String.format("Game added. New game ID: %d\n", createResult.gameID());
         }
         throw new Exception("Expected: <gamename>");
@@ -113,33 +115,47 @@ public class PostLoginClient {
     // investigate playing game 1... or as white?
     // Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Map.get(Object)" is null
     public String join(String... params) throws Exception {
-        if ((params.length == 2) && (Integer.parseInt(params[0]) > 0) &&
-                (Integer.parseInt(params[0]) <= gameNumberMap.size())) {
-            String gameNumber = params[0];
-            playerColor = params[1];
-            int gameID = gameNumberMap.get(gameNumber);
-            JoinRequest joinRequest = new JoinRequest(playerColor, gameID, authToken);
-            server.join(joinRequest);
+        try {
+            if ((params.length == 2) && (Integer.parseInt(params[0]) > 0) &&
+                    (Integer.parseInt(params[0]) <= gameNumberMap.size())) {
+                String gameNumber = params[0];
+                playerColor = params[1];
+                int gameID = gameNumberMap.get(gameNumber);
+                JoinRequest joinRequest = new JoinRequest(playerColor, gameID, authToken);
+                server.join(joinRequest);
 
-            ListRequest listRequest = new ListRequest(authToken);
-            ArrayList<GameData> gamesList = server.list(listRequest).games();
-            for (GameData gameData : gamesList) {
-                if (gameData.gameID() == gameID) {
-                    joinedGameData = gameData;
-                    joinedGame = true;
+                ListRequest listRequest = new ListRequest(authToken);
+                ArrayList<GameData> gamesList = server.list(listRequest).games();
+                for (GameData gameData : gamesList) {
+                    if (gameData.gameID() == gameID) {
+                        joinedGameData = gameData;
+                        joinedGame = true;
+                    }
                 }
-            }
 
-            return String.format("Joined game: %s", gameNumber);
-        }
-        throw new Exception("Expected: <game number listed> <player color>");
+                return String.format("Joined game: %s", gameNumber);
+            }
+            throw new Exception("Expected: <game number listed> <player color>");
+        } catch (NumberFormatException e) {
+            System.out.println(SET_TEXT_COLOR_BLUE + params[0] +
+                    "is not a number. To play a game, type 'play <game number as listed> <color you want to play as>");
+        } throw new Exception(" ");
     }
 
     public String watch(String... params) throws Exception {
-        if (params.length == 1) {
-            int gameID = Integer.parseInt(params[0]);
-            joinedGame = true;
-            return String.format("Joined game as observer: %d", gameID);
+        if ((params.length == 1) && (Integer.parseInt(params[0]) > 0) &&
+                (Integer.parseInt(params[0]) <= gameNumberMap.size())) {
+            String gameNumber = params[0];
+            int gameID = gameNumberMap.get(gameNumber);
+
+            ArrayList<GameData> gamesList = server.list(new ListRequest(authToken)).games();
+            for (GameData gameData : gamesList) {
+                if (gameData.gameID() == gameID) {
+                    joinedGame = true;
+                    joinedGameData = gameData;
+                }
+            }
+            return String.format("Joined game as observer: %s", gameNumber);
         }
         throw new Exception("Expected: <game number>");
     }
@@ -151,7 +167,6 @@ public class PostLoginClient {
                 - list - all existing games
                 - play <gameID> [WHITE|BLACK]
                 - watch <gameID>
-                - quit
                 - help - see these options again
                 """;
     }

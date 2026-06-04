@@ -99,10 +99,13 @@ public class ServerFacade {
             if (status == 401) {
                 throw new Exception("username or password is incorrect.");
             }
-            if (body != null) {
-                throw new Exception("Response body is empty");
+            if (status == 403) {
+                throw new Exception("name already taken");
             }
-            throw new Exception("Error: " + status);
+            if (body != null) {
+                throw new Exception("Input is empty");
+            }
+            throw new Exception("Error");
         }
 
         if (responseClass != null) {

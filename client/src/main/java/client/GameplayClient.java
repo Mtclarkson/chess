@@ -7,10 +7,7 @@ import chess.ChessPosition;
 import model.GameData;
 import server.ServerFacade;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -57,9 +54,8 @@ public class GameplayClient {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            StringBuilder board = (Objects.equals(playerColor, "white")) ? drawBoardWhite() : drawBoardBlack();
             return switch (cmd) {
-                case "show" -> board.toString();
+                case "show" -> drawBoard(playerColor).toString();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -76,32 +72,65 @@ public class GameplayClient {
                 """;
     }
 
-    private StringBuilder drawBoardWhite() {
+    private StringBuilder drawBoard(String playerColor) {
         StringBuilder boardString = new StringBuilder();
-        ArrayList<ChessPiece> pieces = new ArrayList<>();
+        Stack<ChessPiece> pieces = new Stack<>();
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPiece piece = gameData.game().getBoard().getPiece(new ChessPosition(i, j));
                 pieces.add(piece);
             }
         }
-        int colorCtr = 0;
-        for (int i=0; i < 64; i++) {
-
-            ChessPiece piece = pieces.get(i);
-            
-            if ((i % 8) == 0) {
-                boardString.append(RESET_BG_COLOR + "\n");
-                colorCtr++;
+        int j = 1;
+        if (Objects.equals(playerColor, "black")) {
+            boardString.append(SET_BG_COLOR_LIGHT_GREY);
+            boardString.append("   ");
+            boardString.append("  h    g    f    e    d    c    b    a  ");
+            boardString.append("   ").append(RESET_BG_COLOR + "\n");
+            for (int i = 0; i < 64; i++) {
+                ChessPiece piece = pieces.get(i);
+                if ((i % 8) == 0) {
+                    boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(j).append(" ");
+                    if(i>0) {
+                        boardString.append(RESET_BG_COLOR + "\n");
+                        j++;
+                        boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(j).append(" ");
+                    }
+                }
+                String pieceIcon = getPieceIcon(piece);
+                boardString.append(((i + j) % 2 != 0) ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK);
+                boardString.append(" ").append(pieceIcon).append(" ");
             }
-
-            String pieceIcon = getPieceIcon(piece);
-
-            boardString.append(((i+colorCtr) % 2 != 0) ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK);
-            boardString.append(" ").append(pieceIcon).append(" ");
-
+            boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" " + j + " ").append(RESET_BG_COLOR + "\n");
+            boardString.append(SET_BG_COLOR_LIGHT_GREY);
+            boardString.append("   ");
+            boardString.append("  h    g    f    e    d    c    b    a  ");
+            boardString.append("   ").append(RESET_BG_COLOR + "\n");
+        } else {
+            boardString.append(SET_BG_COLOR_LIGHT_GREY);
+            boardString.append("   ");
+            boardString.append("  a    b    c    d    e    f    g    h  ");
+            boardString.append("   ").append(RESET_BG_COLOR + "\n");
+            for (int i = 63; i >= 0; i--) {
+                ChessPiece piece = pieces.get(i);
+                if ((i % 8) == 7) {
+                    boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(9-j).append(" ");
+                    if(i<63) {
+                        boardString.append(RESET_BG_COLOR + "\n");
+                        j++;
+                        boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(9-j).append(" ");
+                    }
+                }
+                String pieceIcon = getPieceIcon(piece);
+                boardString.append(((i + j) % 2 != 0) ? SET_BG_COLOR_BLACK : SET_BG_COLOR_WHITE);
+                boardString.append(" ").append(pieceIcon).append(" ");
+            }
+            boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" " + (9-j) + " ").append(RESET_BG_COLOR + "\n");
+            boardString.append(SET_BG_COLOR_LIGHT_GREY);
+            boardString.append("   ");
+            boardString.append("  a    b    c    d    e    f    g    h  ");
+            boardString.append("   ").append(RESET_BG_COLOR + "\n");
         }
-        boardString.append(RESET_BG_COLOR + "\n");
         return boardString;
     }
 
@@ -127,10 +156,5 @@ public class GameplayClient {
         }
         return pieceIcon;
     }
-
-    private StringBuilder drawBoardBlack() {
-        return new StringBuilder();
-    }
-
 }
 

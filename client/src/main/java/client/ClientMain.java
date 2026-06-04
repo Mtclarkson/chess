@@ -10,24 +10,50 @@ public class ClientMain {
         if (args.length == 1) {
             serverUrl = args[0];
         }
-
-        String authToken;
-        String playerColor;
-        GameData gameData;
+        State state = State.PRE_LOGIN;
+        String authToken = "";
+        String playerColor = "";
+        GameData gameData = null;
+        boolean quit = false;
+        PreLoginClient preloginClient;
 
         try {
+            while (!quit) {
 
-            PreLoginClient preloginClient = new PreLoginClient(serverUrl);
-            preloginClient.run();
-            authToken = preloginClient.authToken;
+                switch (state) {
+                    //state actions and transitions
+                    case PRE_LOGIN:
+                        preloginClient = new PreLoginClient(serverUrl);
+                        preloginClient.run();
+                        quit = preloginClient.quitted;
+                        authToken = preloginClient.authToken;
 
-            PostLoginClient postLoginClient = new PostLoginClient(serverUrl, authToken);
-            postLoginClient.run();
-            gameData = postLoginClient.joinedGameData;
-            playerColor = postLoginClient.playerColor;
+                        if (preloginClient.loggedIn) {
+                            state = State.POST_LOGIN;
+                        }
 
-            new GameplayClient(serverUrl, authToken, gameData, playerColor).run();
+                        break;
+                    case POST_LOGIN:
+                        PostLoginClient postLoginClient = new PostLoginClient(serverUrl, authToken);
+                        postLoginClient.run();
+                        gameData = postLoginClient.joinedGameData;
+                        playerColor = postLoginClient.playerColor;
 
+                        if (postLoginClient.joinedGame) {
+                            state = State.GAMEPLAY;
+                        }
+                        else if (postLoginClient.loggedOut) {
+                            state = State.PRE_LOGIN;
+                        }
+
+                        break;
+                    case GAMEPLAY:
+                        new GameplayClient(serverUrl, authToken, gameData, playerColor).run();
+                        state = State.POST_LOGIN;
+                        break;
+                }
+
+            }
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
         }
