@@ -127,6 +127,44 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void joinGameAlreadyTakenTest() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        String authToken = facade.register(regRequest).authToken();
+
+        RegisterRequest regRequest2 = new RegisterRequest("player2", "password2", "p2@email.com");
+        String authToken2 = facade.register(regRequest2).authToken();
+
+        CreateRequest createRequest = new CreateRequest("gametime!", authToken);
+        int id = facade.create(createRequest).gameID();
+        JoinRequest joinRequest = new JoinRequest("white", id, authToken);
+        facade.join(joinRequest);
+        JoinRequest joinRequest2 = new JoinRequest("white", id, authToken2);
+
+        assertThrows(Exception.class, () -> facade.join(joinRequest2));
+    }
+
+    @Test
+    void joinOldGameTest() throws Exception {
+        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        String authToken = facade.register(regRequest).authToken();
+
+
+        CreateRequest createRequest = new CreateRequest("gametime!", authToken);
+        int id = facade.create(createRequest).gameID();
+
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        facade.logout(logoutRequest);
+
+        LoginRequest loginRequest = new LoginRequest("player1", "password");
+        LoginResult loginResult = facade.login(loginRequest);
+        String newAuthtoken = loginResult.authToken();
+
+        JoinRequest joinRequest = new JoinRequest("white", id, newAuthtoken);
+        assertDoesNotThrow(() -> facade.join(joinRequest));
+
+    }
+
+    @Test
     void logoutTest() throws Exception {
         RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
         String authToken = facade.register(regRequest).authToken();

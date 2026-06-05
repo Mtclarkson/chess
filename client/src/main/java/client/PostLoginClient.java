@@ -7,12 +7,7 @@ import results.CreateResult;
 import results.ListResult;
 import server.ServerFacade;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.params.shadow.com.univocity.parsers.conversions.Conversions.string;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
@@ -25,11 +20,12 @@ public class PostLoginClient {
     public boolean loggedOut = false;
     public String playerColor;
     public GameData joinedGameData;
-    Map<String, Integer> gameNumberMap = new HashMap<>();
+    Map<String, Integer> gameNumberMap;
 
-    public PostLoginClient(String serverUrl, String authToken) {
+    public PostLoginClient(String serverUrl, String authToken, Map<String, Integer> gameNumberMap) {
         server = new ServerFacade(serverUrl);
         this.authToken = authToken;
+        this.gameNumberMap = gameNumberMap;
     }
 
     public void run() {
@@ -120,6 +116,10 @@ public class PostLoginClient {
                     (Integer.parseInt(params[0]) <= gameNumberMap.size())) {
                 String gameNumber = params[0];
                 playerColor = params[1];
+                if ((!Objects.equals(playerColor, "white")) && (!Objects.equals(playerColor, "black"))) {
+                    throw new Exception("player color must be white or black");
+                }
+
                 int gameID = gameNumberMap.get(gameNumber);
                 JoinRequest joinRequest = new JoinRequest(playerColor, gameID, authToken);
                 server.join(joinRequest);

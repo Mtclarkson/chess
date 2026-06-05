@@ -74,63 +74,38 @@ public class GameplayClient {
 
     private StringBuilder drawBoard(String playerColor) {
         StringBuilder boardString = new StringBuilder();
-        Stack<ChessPiece> pieces = new Stack<>();
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPiece piece = gameData.game().getBoard().getPiece(new ChessPosition(i, j));
-                pieces.add(piece);
-            }
-        }
-        int j = 1;
-        if (Objects.equals(playerColor, "black")) {
-            boardString.append(SET_BG_COLOR_LIGHT_GREY);
-            boardString.append("   ");
-            boardString.append("  h    g    f    e    d    c    b    a  ");
-            boardString.append("   ").append(RESET_BG_COLOR + "\n");
-            for (int i = 0; i < 64; i++) {
-                ChessPiece piece = pieces.get(i);
-                if ((i % 8) == 0) {
-                    boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(j).append(" ");
-                    if(i>0) {
-                        boardString.append(RESET_BG_COLOR + "\n");
-                        j++;
-                        boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(j).append(" ");
-                    }
+
+        String headerLetters = (Objects.equals(playerColor, "black")) ?
+                "     h    g    f    e    d    c    b    a     " :
+                "     a    b    c    d    e    f    g    h     ";
+
+        boardString.append(SET_BG_COLOR_LIGHT_GREY).append(headerLetters).append(RESET_BG_COLOR + "\n");
+        int startingRow = (Objects.equals(playerColor, "black")) ? 1 : 8;
+        int endingRow = (Objects.equals(playerColor, "black")) ? 9 : 0;
+        int incFactor = (Objects.equals(playerColor, "black")) ? 1 : -1;
+        int row,col;
+        int colorCtr=0;
+        int colorFactor=0;
+        int pieceCol;
+        boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(startingRow).append(" ");
+        for (row = startingRow; row != endingRow; row+=incFactor) {
+                if (row != startingRow) {
+                    boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row-incFactor).append(" ");
+                    boardString.append(RESET_BG_COLOR + "\n");
+                    boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row).append(" ");
+                    colorFactor++;
                 }
+            for (col = 1; col < 9; col++) {
+                pieceCol = (Objects.equals(playerColor, "black")) ? 9 - col : col;
+                ChessPiece piece = gameData.game().getBoard().getPiece(new ChessPosition(row, pieceCol));
                 String pieceIcon = getPieceIcon(piece);
-                boardString.append(((i + j) % 2 != 0) ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK);
+                boardString.append(((colorCtr + colorFactor) % 2 == 0) ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK);
+                colorCtr++;
                 boardString.append(" ").append(pieceIcon).append(" ");
             }
-            boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" " + j + " ").append(RESET_BG_COLOR + "\n");
-            boardString.append(SET_BG_COLOR_LIGHT_GREY);
-            boardString.append("   ");
-            boardString.append("  h    g    f    e    d    c    b    a  ");
-            boardString.append("   ").append(RESET_BG_COLOR + "\n");
-        } else {
-            boardString.append(SET_BG_COLOR_LIGHT_GREY);
-            boardString.append("   ");
-            boardString.append("  a    b    c    d    e    f    g    h  ");
-            boardString.append("   ").append(RESET_BG_COLOR + "\n");
-            for (int i = 63; i >= 0; i--) {
-                ChessPiece piece = pieces.get(i);
-                if ((i % 8) == 7) {
-                    boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(9-j).append(" ");
-                    if(i<63) {
-                        boardString.append(RESET_BG_COLOR + "\n");
-                        j++;
-                        boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(9-j).append(" ");
-                    }
-                }
-                String pieceIcon = getPieceIcon(piece);
-                boardString.append(((i + j) % 2 != 0) ? SET_BG_COLOR_BLACK : SET_BG_COLOR_WHITE);
-                boardString.append(" ").append(pieceIcon).append(" ");
-            }
-            boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" " + (9-j) + " ").append(RESET_BG_COLOR + "\n");
-            boardString.append(SET_BG_COLOR_LIGHT_GREY);
-            boardString.append("   ");
-            boardString.append("  a    b    c    d    e    f    g    h  ");
-            boardString.append("   ").append(RESET_BG_COLOR + "\n");
-        }
+        } boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" " + (9-startingRow) + " ").append(RESET_BG_COLOR + "\n");
+        boardString.append(SET_BG_COLOR_LIGHT_GREY).append(headerLetters).append(RESET_BG_COLOR + "\n");
+
         return boardString;
     }
 

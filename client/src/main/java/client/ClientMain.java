@@ -3,6 +3,9 @@ package client;
 import chess.*;
 import model.GameData;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ClientMain {
 
     public static void main(String[] args) {
@@ -16,6 +19,7 @@ public class ClientMain {
         GameData gameData = null;
         boolean quit = false;
         PreLoginClient preloginClient;
+        Map<String, Integer> gameNumberMap = new HashMap<>();
 
         try {
             while (!quit) {
@@ -34,7 +38,7 @@ public class ClientMain {
 
                         break;
                     case POST_LOGIN:
-                        PostLoginClient postLoginClient = new PostLoginClient(serverUrl, authToken);
+                        PostLoginClient postLoginClient = new PostLoginClient(serverUrl, authToken, gameNumberMap);
                         postLoginClient.run();
                         gameData = postLoginClient.joinedGameData;
                         playerColor = postLoginClient.playerColor;

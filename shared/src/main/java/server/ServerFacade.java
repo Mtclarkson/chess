@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import model.*;
+import org.junit.jupiter.api.function.Executable;
 import requests.*;
 import results.*;
 
@@ -39,10 +39,12 @@ public class ServerFacade {
         return handleResponse(response, CreateResult.class);
     }
 
-    public void join (JoinRequest request) throws Exception {
+    public JoinResult join (JoinRequest request) throws Exception {
+        authToken = request.authToken();
         request = new JoinRequest(request.playerColor().toUpperCase(), request.gameID(), request.authToken());
         var req = buildRequest("PUT", "/game", request);
-        sendRequest(req);
+        var response = sendRequest(req);
+        return handleResponse(response, JoinResult.class);
     }
 
     public void logout (LogoutRequest request) throws Exception {
@@ -100,7 +102,7 @@ public class ServerFacade {
                 throw new Exception("username or password is incorrect.");
             }
             if (status == 403) {
-                throw new Exception("name already taken");
+                throw new Exception("Sorry, that's already taken");
             }
             if (body != null) {
                 throw new Exception("Input is empty");
