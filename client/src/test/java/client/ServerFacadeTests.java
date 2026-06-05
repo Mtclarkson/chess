@@ -150,7 +150,8 @@ public class ServerFacadeTests {
 
     @Test
     void logoutTest() throws Exception {
-        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterRequest regRequest = new
+                RegisterRequest("player1", "password", "p1@email.com");
         String authToken = facade.register(regRequest).authToken();
 
         LogoutRequest logoutRequest = new LogoutRequest(authToken);
@@ -161,14 +162,12 @@ public class ServerFacadeTests {
 
     @Test // this one is so annoying
     void logoutUnsuccessfulTest() throws Exception {
-        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterRequest regRequest =
+                new RegisterRequest("player1", "password", "p1@email.com");
         String authToken = facade.register(regRequest).authToken();
 
-        LogoutRequest logoutRequest = new LogoutRequest(authToken);
-        facade.logout(logoutRequest);
-
-        ListRequest listRequest = new ListRequest(authToken);
-        assertThrows(Exception.class, () -> facade.list(listRequest));
+        LogoutRequest logoutRequest = new LogoutRequest("plorb");
+        assertThrows(Exception.class, () -> facade.logout(logoutRequest));
     }
 
     @Test

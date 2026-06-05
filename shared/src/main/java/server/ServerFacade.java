@@ -47,10 +47,11 @@ public class ServerFacade {
         return handleResponse(response, JoinResult.class);
     }
 
-    public void logout (LogoutRequest request) throws Exception {
+    public LogoutResult logout (LogoutRequest request) throws Exception {
         authToken = request.authToken();
         var req = buildRequest("DELETE", "/session", request);
-        sendRequest(req);
+        var response = sendRequest(req);
+        return handleResponse(response, LogoutResult.class);
     }
 
     public ListResult list (ListRequest request) throws Exception {
