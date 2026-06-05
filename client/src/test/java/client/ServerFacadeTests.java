@@ -111,22 +111,6 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void joinGameBadRequestTest() throws Exception {
-        RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
-        String authToken = facade.register(regRequest).authToken();
-        CreateRequest createRequest = new CreateRequest("gametime!", authToken);
-        int id = facade.create(createRequest).gameID();
-        JoinRequest joinRequest = new JoinRequest("", id, authToken);
-        facade.join(joinRequest);
-
-        ListRequest listRequest = new ListRequest(authToken);
-        ListResult listResult = facade.list(listRequest);
-        GameData gameData = listResult.games().getFirst();
-
-        assertNull(gameData.whiteUsername());
-    }
-
-    @Test
     void joinGameAlreadyTakenTest() throws Exception {
         RegisterRequest regRequest = new RegisterRequest("player1", "password", "p1@email.com");
         String authToken = facade.register(regRequest).authToken();

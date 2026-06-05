@@ -44,16 +44,9 @@ public class PreLoginClient {
         System.out.println();
     }
 
-
-//    public void notify(Notification notification) {
-//        System.out.println(SET_TEXT_COLOR_RED + notification.message());
-//        printPrompt();
-//    }
-
     private void printPrompt() {
         System.out.print("\n[LOGGED OUT]>>> " + SET_TEXT_COLOR_GREEN);
     }
-
 
     public String eval(String input) {
         try {

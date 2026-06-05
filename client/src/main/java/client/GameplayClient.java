@@ -32,13 +32,16 @@ public class GameplayClient {
         while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
-
             try {
                 result = eval(line);
+                
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
+
                 var msg = e.toString();
+
                 System.out.print(msg);
+
             }
         }
         System.out.println();
