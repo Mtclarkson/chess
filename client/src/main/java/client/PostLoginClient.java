@@ -9,7 +9,6 @@ import server.ServerFacade;
 
 import java.util.*;
 
-import static org.junit.jupiter.params.shadow.com.univocity.parsers.conversions.Conversions.string;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 
@@ -32,17 +31,17 @@ public class PostLoginClient {
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
-        var result = "";
+        var outcome = "";
         while (!loggedOut && !joinedGame) {
             printPrompt();
-            String line = scanner.nextLine();
+            String lines = scanner.nextLine();
 
             try {
-                result = eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
+                outcome = eval(lines);
+                System.out.print(SET_TEXT_COLOR_BLUE + outcome);
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+                var message = e.toString();
+                System.out.print(message);
             }
         }
         System.out.println();

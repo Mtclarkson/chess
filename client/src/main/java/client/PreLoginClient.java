@@ -25,22 +25,23 @@ public class PreLoginClient {
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit") && !loggedIn) {
+        var response = "";
+        while (!response.equals("quit") && !loggedIn) {
             printPrompt();
-            String line = scanner.nextLine();
+            String liner = scanner.nextLine();
 
             try {
-                result = eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
+                response = eval(liner);
+                System.out.print(SET_TEXT_COLOR_BLUE + response);
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+                var msge = e.toString();
+                System.out.print(msge);
             }
         }
-        if (result.equals("quit")) {
+        if (response.equals("quit")) {
             quitted = true;
         }
+        System.out.println();
         System.out.println();
     }
 

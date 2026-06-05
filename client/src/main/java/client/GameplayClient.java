@@ -34,7 +34,7 @@ public class GameplayClient {
             String line = scanner.nextLine();
             try {
                 result = eval(line);
-                
+
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
 
@@ -48,7 +48,7 @@ public class GameplayClient {
     }
 
     private void printPrompt() {
-        System.out.print("\n>>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n>>> " + SET_TEXT_COLOR_YELLOW);
     }
 
 
