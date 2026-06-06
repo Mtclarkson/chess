@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+
 <project>
     <modelVersion>4.0.0</modelVersion>
 
@@ -57,5 +59,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.glassfish.tyrus.bundles</groupId>
+            <artifactId>tyrus-standalone-client</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+    </dependencies>
 
 </project>
