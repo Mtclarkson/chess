@@ -1,5 +1,8 @@
 package server.websocket_server;
 
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
@@ -16,6 +19,7 @@ import websocket.commands.*;
 import websocket.messages.*;
 import service.GameService;
 import java.io.IOException;
+import java.util.Map;
 
 import static websocket.commands.UserGameCommand.CommandType.*;
 
@@ -45,7 +49,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command.getAuthToken(), command.getGameID(), ctx.session);
-//                case MAKE_MOVE -> makeMove();
+                case MAKE_MOVE -> makeMove(command.getAuthToken(), command.getGameID(), ctx.session, move);
                 case LEAVE -> leave(ctx.session);
 //                case RESIGN -> resign();
             }
@@ -81,11 +85,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    public void makeMove(String authToken, int gameID, Session session) throws IOException, DataAccessException {
-        connections.add(session);
+    public void makeMove(String authToken, int gameID, Session session, ChessMove move) throws IOException, DataAccessException, InvalidMoveException {
         GameData gameData = gameService.getGame(gameID);
         Gson gson = new Gson();
-        if ((authService.getAuth(authToken) != null) && (gameService.getGame(gameID) != null)) {
+        if ((authService.getAuth(authToken) != null) && (gameData != null)) {
+            try {
+                gameData.game().makeMove(move);
+            } catch (InvalidMoveException ex) {
+                String errorMessage =
+                        gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex));
+                connections.reply(session, errorMessage);
+            }
             String game =
                     gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                             gameData));
