@@ -1,14 +1,21 @@
 package websocket.messages;
 
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
+import model.GameData;
+import java.util.*;
+
 /**
  * game from server to client
  */
 public class LoadGameMessage extends ServerMessage {
 
-    String message;
-    public LoadGameMessage(ServerMessageType type, String message) {
+    GameData game;
+
+    public LoadGameMessage(ServerMessageType type, GameData game) {
         super(type);
-        this.message = message;
+        this.game = game;
     }
 
 }

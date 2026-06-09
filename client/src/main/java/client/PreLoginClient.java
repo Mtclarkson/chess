@@ -3,11 +3,9 @@ package client;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import model.*;
 import server.ServerFacade;
 import requests.*;
 import results.*;
-
 import static ui.EscapeSequences.*;
 
 public class PreLoginClient {

@@ -1,17 +1,20 @@
 package server.websocket_server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import service.AuthService;
+import service.UserService;
 import websocket.commands.*;
 import websocket.messages.*;
-
+import service.GameService;
 import java.io.IOException;
 
 import static websocket.commands.UserGameCommand.CommandType.*;
@@ -19,6 +22,16 @@ import static websocket.commands.UserGameCommand.CommandType.*;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final GameService gameService;
+    private final AuthService authService;
+    private final UserService userService;
+
+    public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO, UserDAO userDAO) {
+        this.gameService = new GameService(gameDAO);
+        this.authService = new AuthService(authDAO);
+        this.userService = new UserService(userDAO);
+    }
+
 
     @Override
     public void handleConnect(WsConnectContext ctx) {
@@ -31,12 +44,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-                case CONNECT -> connect(command.getGameID(), ctx.session);
+                case CONNECT -> connect(command.getAuthToken(), command.getGameID(), ctx.session);
 //                case MAKE_MOVE -> makeMove();
                 case LEAVE -> leave(ctx.session);
 //                case RESIGN -> resign();
             }
-        } catch (IOException ex) {
+        } catch (IOException | DataAccessException ex) {
             ex.printStackTrace();
         }
     }
@@ -46,23 +59,51 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(int gameID, Session session) throws IOException {
+    public void connect(String authToken, int gameID, Session session) throws IOException, DataAccessException {
         connections.add(session);
-        var broadcastMessage = String.format("Username joined as playerColor in %d", gameID);
-        var game = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-//        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, broadcastMessage);
-//        connections.broadcast(session, notification); // how to get message info, username, playercolor
-        connections.reply(session, game);
+        GameData gameData = gameService.getGame(gameID);
+        Gson gson = new Gson();
+        if ((authService.getAuth(authToken) != null) && (gameService.getGame(gameID) != null)) {
+            String game =
+                    gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                            gameData));
+            connections.reply(session, game);
+            String message =
+                    gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            "playerColor or Observer"));
+            connections.broadcast(session, message);
+        }
+        else {
+            String errorMessage =
+                    gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: not implemented"));
+
+            connections.reply(session, errorMessage);
+        }
     }
 
-    private void makeMove(String gameID, Session session) throws IOException {
-        var message = ("%s left the game");
-//        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-//        connections.broadcast(session, notification);
-        connections.remove(session);
+    public void makeMove(String authToken, int gameID, Session session) throws IOException, DataAccessException {
+        connections.add(session);
+        GameData gameData = gameService.getGame(gameID);
+        Gson gson = new Gson();
+        if ((authService.getAuth(authToken) != null) && (gameService.getGame(gameID) != null)) {
+            String game =
+                    gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                            gameData));
+            connections.reply(session, game);
+            String message =
+                    gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            "playerColor or Observer"));
+            connections.broadcast(session, message);
+        }
+        else {
+            String errorMessage =
+                    gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: not implemented"));
+
+            connections.reply(session, errorMessage);
+        }
     }
 
-    private void leave(Session session) throws IOException {
+    public void leave(Session session) throws IOException {
         var message = ("guy left the game");
 //        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
 //        connections.broadcast(session, notification);

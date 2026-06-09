@@ -8,9 +8,7 @@ import results.ListResult;
 import server.ServerFacade;
 
 import java.util.*;
-
-import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
-import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+import static ui.EscapeSequences.*;
 
 public class PostLoginClient {
     private final ServerFacade server;

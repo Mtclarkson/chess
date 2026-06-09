@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import model.*;
+import org.eclipse.jetty.websocket.api.Session;
 import requests.*;
 import results.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -25,20 +26,6 @@ public class Server {
     // make request and results classes in shared
 
     public Server() {
-        webSocketHandler = new WebSocketHandler();
-        javalin = Javalin.create(config -> config.staticFiles.add("web"))
-                .delete("/db", this::clear)
-                .post("/user", this::register)
-                .post("/session", this::login)
-                .delete("/session", this::logout)
-                .get("/game", this::list)
-                .post("/game", this::create)
-                .put("/game", this::join)
-                .ws("/ws", ws -> {
-                    ws.onConnect(webSocketHandler);
-                    ws.onMessage(webSocketHandler);
-                    ws.onClose(webSocketHandler);
-                });
         AuthDAO authDAO;
         UserDAO userDAO;
         GameDAO gameDAO;
@@ -60,6 +47,21 @@ public class Server {
             throw new RuntimeException("Error: Failed to initialize game database: " + e.getMessage());
         }
         this.gameService = new GameService(gameDAO);
+
+        webSocketHandler = new WebSocketHandler(gameDAO, authDAO, userDAO);
+        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+                .delete("/db", this::clear)
+                .post("/user", this::register)
+                .post("/session", this::login)
+                .delete("/session", this::logout)
+                .get("/game", this::list)
+                .post("/game", this::create)
+                .put("/game", this::join)
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
     }
 
     public int run(int desiredPort) {
@@ -252,6 +254,7 @@ public class Server {
                 if (game.whiteUsername()!=null) {
                     throw new AlreadyTakenException("Error: already taken");
                 } gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID());
+//                webSocketHandler.connect(authToken, game.gameID(), (Session) ctx);
             }
 
             else {

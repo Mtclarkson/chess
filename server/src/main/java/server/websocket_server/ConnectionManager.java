@@ -18,23 +18,21 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public void broadcast(Session excludeSession, ServerMessage notification) throws IOException {
-        String msg = notification.toString();
+    public void broadcast(Session excludeSession, String notification) throws IOException {
         for (Session c : connections.values()) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
-                    c.getRemote().sendString(msg);
+                    c.getRemote().sendString(notification);
                 }
             }
         }
     }
 
-    public void reply(Session currentSession, ServerMessage notification) throws IOException {
-        String msg = notification.toString();
+    public void reply(Session currentSession, String notification) throws IOException {
         for (Session c : connections.values()) {
             if (c.isOpen()) {
                 if (c.equals(currentSession)) {
-                    c.getRemote().sendString(msg);
+                    c.getRemote().sendString(notification);
                 }
             }
         }
