@@ -59,7 +59,7 @@ public class GameplayClient {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "show" -> drawBoard(playerColor).toString();
-                case "quit" -> "quit";
+                case "leave" -> "quit";
                 default -> help();
             };
         } catch (Exception ex) {
@@ -70,7 +70,7 @@ public class GameplayClient {
     public String help() {
         return """
                 - show - board
-                - quit
+                - leave
                 - help - see these options again
                 """;
     }
