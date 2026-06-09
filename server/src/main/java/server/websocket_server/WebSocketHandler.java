@@ -31,9 +31,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-//                case CONNECT -> connect(command.getAuthToken(), ctx.session);
+                case CONNECT -> connect(command.getGameID(), ctx.session);
 //                case MAKE_MOVE -> makeMove();
-//                case LEAVE -> leave(, ctx.session);
+                case LEAVE -> leave(ctx.session);
 //                case RESIGN -> resign();
             }
         } catch (IOException ex) {
@@ -46,17 +46,26 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-//    private void connect(String authToken, Session session) throws IOException {
-//        connections.add(session);
-//        var message = String.format("Someone has joined the game");
+    private void connect(int gameID, Session session) throws IOException {
+        connections.add(session);
+        var broadcastMessage = String.format("Username joined as playerColor in %d", gameID);
+        var game = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+//        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, broadcastMessage);
+//        connections.broadcast(session, notification); // how to get message info, username, playercolor
+        connections.reply(session, game);
+    }
+
+    private void makeMove(String gameID, Session session) throws IOException {
+        var message = ("%s left the game");
 //        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
 //        connections.broadcast(session, notification);
-//    }
-//
-//    private void exit(String visitorName, Session session) throws IOException {
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new ServerMessage(ServerMessage.ServerMessageType.DEPARTURE, message);
+        connections.remove(session);
+    }
+
+    private void leave(Session session) throws IOException {
+        var message = ("guy left the game");
+//        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
 //        connections.broadcast(session, notification);
-//        connections.remove(session);
-//    }
+        connections.remove(session);
+    }
 }

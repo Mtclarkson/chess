@@ -1,7 +1,6 @@
 package server.websocket_server;
 
 import org.eclipse.jetty.websocket.api.Session;
-import websocket.*;
 import websocket.messages.*;
 import websocket.commands.*;
 
@@ -24,6 +23,17 @@ public class ConnectionManager {
         for (Session c : connections.values()) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
+                    c.getRemote().sendString(msg);
+                }
+            }
+        }
+    }
+
+    public void reply(Session currentSession, ServerMessage notification) throws IOException {
+        String msg = notification.toString();
+        for (Session c : connections.values()) {
+            if (c.isOpen()) {
+                if (c.equals(currentSession)) {
                     c.getRemote().sendString(msg);
                 }
             }

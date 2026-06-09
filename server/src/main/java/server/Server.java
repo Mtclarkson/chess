@@ -5,6 +5,7 @@ import model.*;
 import requests.*;
 import results.*;
 import org.mindrot.jbcrypt.BCrypt;
+import server.websocket_server.WebSocketHandler;
 import service.*;
 import dataaccess.*;
 import io.javalin.*;
@@ -19,10 +20,12 @@ public class Server {
     private final AuthService authService;
     private final UserService userService;
     private final GameService gameService;
+    private final WebSocketHandler webSocketHandler;
 
     // make request and results classes in shared
 
     public Server() {
+        webSocketHandler = new WebSocketHandler();
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .delete("/db", this::clear)
                 .post("/user", this::register)
@@ -30,7 +33,12 @@ public class Server {
                 .delete("/session", this::logout)
                 .get("/game", this::list)
                 .post("/game", this::create)
-                .put("/game", this::join);
+                .put("/game", this::join)
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
         AuthDAO authDAO;
         UserDAO userDAO;
         GameDAO gameDAO;
