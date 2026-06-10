@@ -23,8 +23,6 @@ public class Server {
     private final GameService gameService;
     private final WebSocketHandler webSocketHandler;
 
-    // make request and results classes in shared
-
     public Server() {
         AuthDAO authDAO;
         UserDAO userDAO;
@@ -253,14 +251,16 @@ public class Server {
             if (joiningPlayerColor.equals("WHITE")) {
                 if (game.whiteUsername()!=null) {
                     throw new AlreadyTakenException("Error: already taken");
-                } gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID(), null);
+                } gameService.updateGame(joiningPlayerColor, authData.username(),
+                        game.gameID(), null, false);
 //                webSocketHandler.connect(authToken, game.gameID(), (Session) ctx);
             }
 
             else {
                 if (game.blackUsername()!=null) {
                     throw new AlreadyTakenException("Error: already taken");
-                } gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID(), null);
+                } gameService.updateGame(joiningPlayerColor, authData.username(),
+                        game.gameID(), null, false);
             }
 
             ctx.status(200);

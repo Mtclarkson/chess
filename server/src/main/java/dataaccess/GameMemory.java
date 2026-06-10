@@ -30,7 +30,7 @@ public class GameMemory implements GameDAO {
         return null;
     }
 
-    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move)
+    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move, boolean endGame)
             throws DataAccessException {
         GameData game = getGame(gameID);
         GameData updatedGame = (playerColor.equals("WHITE")) ? new GameData(gameID, newUsername, game.blackUsername() ,game.gameName(), game.game()) :

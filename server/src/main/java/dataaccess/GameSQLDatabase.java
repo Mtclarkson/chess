@@ -86,18 +86,35 @@ public class GameSQLDatabase implements GameDAO {
     }
 
     // add makeMove() functionality
-    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move)
+    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move, boolean endGame)
             throws DataAccessException, InvalidMoveException {
         GameData gameData = getGame(gameID);
+        if (endGame) {
+            gameData.game().setGameOver();
+            Gson gson = new Gson();
+            String gameJson = gson.toJson(gameData.game());
+            var statement = "UPDATE game SET gameData = ? WHERE gameID = ?;";
+            DatabaseManager.executeUpdate(statement, gameJson, gameID);
+            return gameData;
+        }
         if (move == null) {
             GameData updatedGame;
-            updatedGame = (playerColor.equals("WHITE")) ?
-                    new GameData(gameID, newUsername, gameData.blackUsername(), gameData.gameName(), gameData.game()) :
-                    new GameData(gameID, gameData.whiteUsername(), newUsername, gameData.gameName(), gameData.game());
-            var statement = (playerColor.equals("WHITE")) ?
-                    "UPDATE game SET whiteUsername = ? WHERE gameID = ?;" :
-                    "UPDATE game SET blackUsername = ? WHERE gameID = ?;";
-            DatabaseManager.executeUpdate(statement, newUsername, gameID);
+            if (playerColor.equals("WHITE")) {
+                updatedGame = (newUsername.equals("leftGame")) ?
+                        new GameData(gameID, null, gameData.blackUsername(), gameData.gameName(), gameData.game()) :
+                        new GameData(gameID, newUsername, gameData.blackUsername(), gameData.gameName(), gameData.game());
+                var statement = "UPDATE game SET whiteUsername = ? WHERE gameID = ?;";
+                String input = (newUsername.equals("leftGame")) ? null : newUsername;
+                DatabaseManager.executeUpdate(statement, input, gameID);
+            }
+            else {
+                updatedGame = (newUsername.equals("leftGame")) ?
+                        new GameData(gameID, gameData.whiteUsername(), null, gameData.gameName(), gameData.game()) :
+                        new GameData(gameID, gameData.whiteUsername(), newUsername, gameData.gameName(), gameData.game());
+                var statement = "UPDATE game SET blackUsername = ? WHERE gameID = ?;";
+                String input = (newUsername.equals("leftGame")) ? null : newUsername;
+                DatabaseManager.executeUpdate(statement, input, gameID);
+            }
             return updatedGame;
         } else {
             gameData.game().makeMove(move);

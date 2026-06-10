@@ -20,6 +20,7 @@ import websocket.messages.*;
 import service.GameService;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 import static websocket.commands.UserGameCommand.CommandType.*;
 
@@ -53,8 +54,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case MAKE_MOVE ->
                         makeMove(moveCommand.getAuthToken(), moveCommand.getGameID(),
                         ctx.session, moveCommand.getMove());
-                case LEAVE -> leave(ctx.session);
-//                case RESIGN -> resign();
+                case LEAVE -> leave(command.getAuthToken(), command.getGameID(), ctx.session);
+                case RESIGN -> resign(command.getAuthToken(), command.getGameID(), ctx.session);
             }
         } catch (IOException | DataAccessException | InvalidMoveException ex) {
             ex.printStackTrace();
@@ -67,7 +68,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     public void connect(String authToken, int gameID, Session session) throws IOException, DataAccessException {
-        connections.add(session);
+        connections.add(session, gameID);
         GameData gameData = gameService.getGame(gameID);
         Gson gson = new Gson();
         if ((authService.getAuth(authToken) != null) && (gameService.getGame(gameID) != null)) {
@@ -78,7 +79,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String message =
                     gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                             "playerColor or Observer"));
-            connections.broadcast(session, message);
+            connections.broadcast(session, gameID, message);
         }
         else {
             String errorMessage =
@@ -109,39 +110,39 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
 
             try {
-                gameService.updateGame(playerColor.toString(), username, gameID, move);
+                gameService.updateGame(playerColor.toString(), username, gameID, move, false);
             } catch (InvalidMoveException ex) {
-                if (game.isInCheckmate(ChessGame.TeamColor.WHITE) ||
-                        game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
-                        game.isInStalemate(ChessGame.TeamColor.WHITE) ||
-                        game.isInStalemate(ChessGame.TeamColor.BLACK)) {
-                    String gameString =
-                            gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                                    gameData));
-                    connections.broadcast(session, gameString);
-                    connections.reply(session, gameString);
-                    String notification =
-                            gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                    "checkmate"));
-                    connections.broadcast(session, notification);
-                    connections.reply(session, notification);
-                    return;
-                } else {
-                    String errorMessage =
-                            gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex));
-                    connections.reply(session, errorMessage);
-                    return;
-                }
+                String errorMessage =
+                        gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex));
+                connections.reply(session, errorMessage);
+                return;
             }
+
+            GameData updatedGameData = gameService.getGame(gameID);
+            ChessGame updatedGame = updatedGameData.game();
+
             String gameString =
-                    gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                            gameData));
-            connections.broadcast(session, gameString);
+                    gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGameData));
+            connections.broadcast(session, gameID, gameString);
             connections.reply(session, gameString);
-            String message =
-                    gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "playerColor or Observer"));
-            connections.broadcast(session, message);
+
+            if (updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE) || updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                String messageContent = (updatedGame.getTeamTurn() == playerColor) ? "You lost" : "You won!";
+                String checkmateMessage =
+                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                "Checkmate!"));
+                String extraMessage =
+                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                messageContent));
+                connections.broadcast(session, gameID, checkmateMessage);
+                connections.reply(session, checkmateMessage);
+                connections.broadcast(session, gameID, extraMessage); //what the heck is the extra notif supposed to be
+            } else {
+                String message =
+                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                "playerColor or Observer"));
+                connections.broadcast(session, gameID, message);
+            }
         }
         else {
             String errorMessage =
@@ -151,10 +152,48 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    public void leave(Session session) throws IOException {
-        var message = ("guy left the game");
-//        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-//        connections.broadcast(session, notification);
-        connections.remove(session);
+    public void leave(String authToken, int gameID, Session session)
+            throws IOException, DataAccessException, InvalidMoveException {
+        Gson gson = new Gson();
+        AuthData authData = authService.getAuth(authToken);
+        String playerColor = (Objects.equals(authData.username(), gameService.getGame(gameID).whiteUsername())) ?
+                "WHITE" : "BLACK";
+        gameService.updateGame(playerColor,"leftGame",gameID,null, false);
+        String message =
+                gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        String.format("%s has left", authData.username())));
+        connections.broadcast(session, gameID, message);
+        connections.remove(session, gameID);
+    }
+
+    public void resign(String authToken, int gameID, Session session)
+            throws IOException, DataAccessException, InvalidMoveException {
+        Gson gson = new Gson();
+        AuthData authData = authService.getAuth(authToken);
+        GameData gameData = gameService.getGame(gameID);
+        String username = authData.username();
+        if (!username.equals(gameService.getGame(gameID).whiteUsername()) &&
+                !username.equals(gameService.getGame(gameID).blackUsername())) {
+            String errorMessage =
+                    gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                            "Error: observers may not resign"));
+            connections.reply(session, errorMessage);
+            return;
+        }
+        if (gameData.game().getGameOverStatus()) {
+            String errorMessage =
+                    gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                            "Error: already resigned"));
+            connections.reply(session, errorMessage);
+            return;
+        }
+        String playerColor = (Objects.equals(authData.username(), gameService.getGame(gameID).whiteUsername())) ?
+                "WHITE" : "BLACK";
+        gameService.updateGame(playerColor, authData.username(), gameID,null, true);
+        String message =
+                gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        String.format("%s has resigned", authData.username())));
+        connections.broadcast(session, gameID, message);
+        connections.reply(session, message);
     }
 }

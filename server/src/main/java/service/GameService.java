@@ -36,13 +36,13 @@ public class GameService {
         return gameDAO.getGame(givenGameID);
     }
 
-    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move)
+    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move, boolean endGame)
             throws DataAccessException, InvalidMoveException {
         if (isNullOrBlank(playerColor) || isNullOrBlank(newUsername) || (getGame(gameID)==null) ||
                 (!playerColor.equals("BLACK") && !playerColor.equals("WHITE"))) {
             return null;
         }
-        return gameDAO.updateGame(playerColor, newUsername, gameID, move);
+        return gameDAO.updateGame(playerColor, newUsername, gameID, move, endGame);
     }
 
     public void clearAllGames() throws DataAccessException {

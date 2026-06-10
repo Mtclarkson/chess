@@ -62,8 +62,8 @@ class GameServiceTests {
     @Test
     void updateGameTest() throws DataAccessException, InvalidMoveException {
         GameData monopoly = GAME_SERVICE.createGame("monopoly");
-        monopoly = GAME_SERVICE.updateGame("BLACK","Mr. White", monopoly.gameID(), null);
-        monopoly = GAME_SERVICE.updateGame("WHITE","Mr. Black", monopoly.gameID(), null);
+        monopoly = GAME_SERVICE.updateGame("BLACK","Mr. White", monopoly.gameID(), null, false);
+        monopoly = GAME_SERVICE.updateGame("WHITE","Mr. Black", monopoly.gameID(), null, false);
 
         assertEquals("Mr. White", monopoly.blackUsername());
     }
@@ -73,7 +73,7 @@ class GameServiceTests {
     void updateGameDoesntExistTest() throws DataAccessException, InvalidMoveException {
         GameData update;
         int fakeID = 67;
-        update = GAME_SERVICE.updateGame("BLACK","Mr. White", fakeID, null);
+        update = GAME_SERVICE.updateGame("BLACK","Mr. White", fakeID, null, false);
 
         assertNull(update);
     }

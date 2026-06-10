@@ -15,12 +15,21 @@ public class ChessGame {
 
     ChessBoard gameboard = new ChessBoard();
     TeamColor currentTeam;
+    boolean gameOver;
 
     public ChessGame() {
         gameboard.resetBoard();
         currentTeam = TeamColor.WHITE;
+        gameOver = false;
     }
 
+    public void setGameOver() {
+        gameOver = true;
+    }
+
+    public boolean getGameOverStatus() {
+        return gameOver;
+    }
 
     /**
      * @return Which team's turn it is
@@ -57,7 +66,7 @@ public class ChessGame {
         List<ChessMove> validMoves = new ArrayList<>();
         ChessPiece piece = gameboard.getPiece(startPosition);
 
-        if (piece == null) {
+        if ((piece == null) || gameOver) {
             return validMoves;
         }
 
