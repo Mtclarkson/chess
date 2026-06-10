@@ -141,6 +141,7 @@ public class PostLoginClient {
     }
 
     public String watch(String... params) throws Exception {
+        list();
         if ((params.length == 1) && (Integer.parseInt(params[0]) > 0) &&
                 (Integer.parseInt(params[0]) <= gameNumberMap.size())) {
             String gameNumber = params[0];

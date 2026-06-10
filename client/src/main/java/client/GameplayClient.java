@@ -61,12 +61,11 @@ public class GameplayClient implements NotificationHandler {
 
             }
         }
-        ws.leave(authToken, gameData.gameID());
         System.out.println();
     }
 
     private void printPrompt() {
-        System.out.print("\n>>> " + SET_TEXT_COLOR_BLUE);
+        System.out.print(SET_TEXT_COLOR_BLUE + "\n>>> ");
     }
 
     public String eval(String input) {

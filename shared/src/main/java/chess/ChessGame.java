@@ -123,7 +123,17 @@ public class ChessGame {
         }
         if (isInCheck(currentTeam)) {throw new InvalidMoveException("You're in check!");}
         else if (isInCheck(currentTeam)) {throw new InvalidMoveException("Not your turn");}
-        else if (gameOver) {throw new InvalidMoveException("This game is over");}
+        else if (gameOver) {
+            if (isInCheckmate(currentTeam)) {
+                throw new InvalidMoveException("Checkmate");
+            }
+            else if (isInStalemate(currentTeam)) {
+                throw new InvalidMoveException("Stalemate");
+            }
+            else {
+                throw new InvalidMoveException("This game is over");
+            }
+        }
         else {throw new InvalidMoveException("Invalid move!");}
     }
 
