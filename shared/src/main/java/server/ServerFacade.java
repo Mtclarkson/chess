@@ -105,9 +105,6 @@ public class ServerFacade {
             if (status == 403) {
                 throw new Exception("Sorry, that's already taken");
             }
-            if (body != null) {
-                throw new Exception("Input is empty");
-            }
             throw new Exception("Error");
         }
 

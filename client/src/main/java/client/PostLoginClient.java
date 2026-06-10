@@ -109,6 +109,7 @@ public class PostLoginClient {
     // Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.Map.get(Object)" is null
     public String join(String... params) throws Exception {
         try {
+            list();
             if ((params.length == 2) && (Integer.parseInt(params[0]) > 0) &&
                     (Integer.parseInt(params[0]) <= gameNumberMap.size())) {
                 String gameNumber = params[0];

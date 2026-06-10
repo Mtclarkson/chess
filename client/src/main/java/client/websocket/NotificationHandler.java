@@ -1,4 +1,10 @@
 package client.websocket;
 
-public interface MessageHandler {
+import websocket.messages.*;
+
+public interface NotificationHandler {
+    void notify(NotificationMessage message);
+    void thrower(ErrorMessage message);
+    void game(LoadGameMessage game);
 }
+

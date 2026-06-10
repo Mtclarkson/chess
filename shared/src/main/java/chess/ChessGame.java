@@ -97,6 +97,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (isInCheckmate(currentTeam) || isInStalemate(currentTeam)) {
+            gameOver = true;
+        }
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece.PieceType promotionPieceType = move.getPromotionPiece();
@@ -118,7 +121,10 @@ public class ChessGame {
                 return;
             }
         }
-        throw new InvalidMoveException("Invalid move!");
+        if (isInCheck(currentTeam)) {throw new InvalidMoveException("You're in check!");}
+        else if (isInCheck(currentTeam)) {throw new InvalidMoveException("Not your turn");}
+        else if (gameOver) {throw new InvalidMoveException("This game is over");}
+        else {throw new InvalidMoveException("Invalid move!");}
     }
 
     public ChessPosition getKingPosition(TeamColor teamColor) {

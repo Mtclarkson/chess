@@ -71,14 +71,26 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.add(session, gameID);
         GameData gameData = gameService.getGame(gameID);
         Gson gson = new Gson();
-        if ((authService.getAuth(authToken) != null) && (gameService.getGame(gameID) != null)) {
+        AuthData authData = authService.getAuth(authToken);
+
+        if ((authData != null) && (gameService.getGame(gameID) != null)) {
+
+            String playerColor;
+            if (authData.username().equals(gameData.whiteUsername())) {
+                playerColor = "white";
+            } else if (authData.username().equals(gameData.blackUsername())) {
+                playerColor = "black";
+            } else {
+                playerColor = "observer";
+            }
+
             String game =
                     gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                             gameData));
             connections.reply(session, game);
             String message =
                     gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "playerColor or Observer"));
+                            String.format("%s has joined game as %s", authData.username(), playerColor)));
             connections.broadcast(session, gameID, message);
         }
         else {
@@ -100,8 +112,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ChessGame game = gameData.game();
             ChessGame.TeamColor playerColor = (username.equals(gameData.whiteUsername())) ?
                     ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-            ChessBoard board = game.getBoard();
-            if (game.getBoard().getPiece(move.getStartPosition()).getTeamColor() != playerColor) {
+            ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+            if (piece == null) {
+                String errorMessage =
+                        gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                                "Error: Empty square"));
+                connections.reply(session, errorMessage);
+                return;
+            }
+            else if (game.getBoard().getPiece(move.getStartPosition()).getTeamColor() != playerColor) {
                 String errorMessage =
                         gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                                 "Error: Not your piece!"));
@@ -113,7 +132,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 gameService.updateGame(playerColor.toString(), username, gameID, move, false);
             } catch (InvalidMoveException ex) {
                 String errorMessage =
-                        gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + ex));
+                        gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                                "Error: " + ex.getMessage()));
                 connections.reply(session, errorMessage);
                 return;
             }
@@ -140,7 +160,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             } else {
                 String message =
                         gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                "playerColor or Observer"));
+                                String.format("%s: %s %s", username,
+                                        move.getStartPosition().toString(), move.getEndPosition().toString())));
                 connections.broadcast(session, gameID, message);
             }
         }

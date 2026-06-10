@@ -1,22 +1,24 @@
 package client;
 
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import model.GameData;
 import server.ServerFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
 import java.util.*;
 
 import static ui.EscapeSequences.*;
 
-public class GameplayClient {
+public class GameplayClient implements NotificationHandler {
     private final ServerFacade server;
     private final String authToken;
     private final String playerColor;
-    private final GameData gameData;
+    private GameData gameData;
     private final Map<Character, Integer> positionMap = Map.of(
             'a',1,
             'b', 2,
@@ -27,21 +29,24 @@ public class GameplayClient {
             'g', 7,
             'h', 8
     );
+    private final WebSocketFacade ws;
 
     // make a MakeMoveCommand and send it to the server
-    public GameplayClient(String serverUrl, String authToken, GameData gameData, String playerColor) {
+    public GameplayClient(String serverUrl, String authToken, GameData gameData, String playerColor)
+            throws Exception {
         server = new ServerFacade(serverUrl);
         this.authToken = authToken;
         this.gameData = gameData;
         this.playerColor = playerColor;
+        ws = new WebSocketFacade(serverUrl, this);
     }
 
-    public void run() {
+    public void run() throws Exception {
         System.out.print(help());
-
+        ws.connect(authToken, gameData.gameID());
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (!result.equals("leaving game")) {
             printPrompt();
             String line = scanner.nextLine();
             try {
@@ -56,13 +61,13 @@ public class GameplayClient {
 
             }
         }
+        ws.leave(authToken, gameData.gameID());
         System.out.println();
     }
 
     private void printPrompt() {
-        System.out.print("\n>>> " + SET_TEXT_COLOR_YELLOW);
+        System.out.print("\n>>> " + SET_TEXT_COLOR_BLUE);
     }
-
 
     public String eval(String input) {
         try {
@@ -70,9 +75,11 @@ public class GameplayClient {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "show" -> drawBoard(playerColor).toString();
+                case "show" -> drawBoard(playerColor, null).toString();
+                case "moves" -> drawBoard(playerColor, params[0]).toString();
                 case "move" -> move(params);
-                case "leave" -> "quit";
+                case "resign" -> resign();
+                case "leave" -> leave();
                 default -> help();
             };
         } catch (Exception ex) {
@@ -83,29 +90,70 @@ public class GameplayClient {
     public String help() {
         return """
                 - show - board
+                - move <start> <end> - make a move
+                - moves <piece position> - see all available moves for a piece
                 - leave
+                - resign
                 - help - see these options again
                 """;
+    }
+
+    private boolean inbounds(int i,int j) {
+        return (i < 9) && (i > 0) && (j < 9) && (j > 0);
     }
 
     private String move(String... params) throws Exception {
         if ((params.length == 2) || (params.length == 3)) {
             String startPositionString = params[0];
             String endPositionString = params[1];
-            ChessPiece.PieceType promotionPiece =
-                    (params[2].isEmpty()) ? null : ChessPiece.PieceType.valueOf(params[2].toUpperCase());
-            ChessPosition startPosition =
-                    new ChessPosition(startPositionString.charAt(1),positionMap.get(startPositionString.charAt(0)));
-            ChessPosition endPosition =
-                    new ChessPosition(endPositionString.charAt(1),positionMap.get(endPositionString.charAt(0)));
-            ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
-            return move.toString(); // replace with websocketfacade
+            ChessPiece.PieceType promotionPiece = (params.length == 3) ?
+                    ChessPiece.PieceType.valueOf(params[2].toUpperCase()) : null;
+            // catch bogus moves
+            int startRow = Integer.parseInt(String.valueOf(startPositionString.charAt(1)));
+            int startCol = positionMap.get(startPositionString.charAt(0));
+            int endRow = Integer.parseInt(String.valueOf(endPositionString.charAt(1)));
+            int endCol = positionMap.get(endPositionString.charAt(0));
+
+            if (inbounds(startRow, startCol) && inbounds(endRow, endCol)) {
+                ChessPosition startPosition = new ChessPosition(startRow, startCol);
+                ChessPosition endPosition = new ChessPosition(endRow, endCol);
+                ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
+
+                ws.makeMove(authToken, gameData.gameID(), move);
+                return "";
+            }
+            else {
+                throw new Exception("Move of Bounds");
+            }
         }
         throw new Exception("Expected: <starting position> <ending position>");
     }
 
-    private StringBuilder drawBoard(String playerColor) {
+    private String resign() throws Exception {
+        ws.resign(authToken, gameData.gameID());
+        return "";
+    }
+
+    private String leave() throws Exception {
+        ws.leave(authToken, gameData.gameID());
+        return "leaving game";
+    }
+
+    private StringBuilder drawBoard(String playerColor, String piecePosition) {
         StringBuilder boardString = new StringBuilder();
+        Collection<ChessPosition> endPositions = null;
+
+        if (piecePosition != null) {
+            ChessPosition selectedPiece;
+            int pieceRow = Integer.parseInt(String.valueOf(piecePosition.charAt(1)));
+            int pieceCol = positionMap.get(piecePosition.charAt(0));
+            selectedPiece = new ChessPosition(pieceRow, pieceCol);
+            ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) gameData.game().validMoves(selectedPiece);
+            endPositions = new ArrayList<>();
+            for (ChessMove validMove : validMoves) {
+                endPositions.add(validMove.getEndPosition());
+            }
+        }
 
         String headerLetters = (Objects.equals(playerColor, "black")) ?
                 "     h    g    f    e    d    c    b    a     " :
@@ -129,10 +177,21 @@ public class GameplayClient {
                 }
             for (col = 1; col < 9; col++) {
                 pieceCol = (Objects.equals(playerColor, "black")) ? 9 - col : col;
-                ChessPiece piece = gameData.game().getBoard().getPiece(new ChessPosition(row, pieceCol));
+                ChessPosition selectedPosition = new ChessPosition(row, pieceCol);
+                ChessPiece piece = gameData.game().getBoard().getPiece(selectedPosition);
                 String pieceIcon = getPieceIcon(piece);
-                boardString.append(((colorCtr + colorFactor) % 2 == 0) ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK);
-                colorCtr++;
+                if ((piecePosition != null) && (endPositions != null)) {
+                    if (endPositions.contains(selectedPosition)) {
+                        boardString.append(((colorCtr + colorFactor) % 2 == 0) ?
+                                SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN);
+                    } else {
+                        boardString.append(((colorCtr + colorFactor) % 2 == 0) ?
+                                SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK);
+                    } colorCtr++;
+                } else {
+                    boardString.append(((colorCtr + colorFactor) % 2 == 0) ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK);
+                    colorCtr++;
+                }
                 boardString.append(" ").append(pieceIcon).append(" ");
             }
         } boardString.append(SET_BG_COLOR_LIGHT_GREY).append(" " + (9-startingRow) + " ").append(RESET_BG_COLOR + "\n");
@@ -162,6 +221,23 @@ public class GameplayClient {
                     (piece.getPieceType() == ChessPiece.PieceType.KING) ? BLACK_KING : BLACK_QUEEN;
         }
         return pieceIcon;
+    }
+
+    public void notify(NotificationMessage notification) {
+        System.out.println(SET_TEXT_COLOR_YELLOW + notification.getMessage());
+        printPrompt();
+    }
+
+    public void thrower(ErrorMessage message) {
+        System.out.println(SET_TEXT_COLOR_MAGENTA + message.getErrorMessage());
+        printPrompt();
+    }
+
+    public void game(LoadGameMessage game) {
+        System.out.print("\n");
+        gameData = game.getGame();
+        System.out.println(drawBoard(playerColor, null));
+        printPrompt();
     }
 }
 
