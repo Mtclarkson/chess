@@ -147,7 +147,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.reply(session, gameString);
 
             if (updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE) || updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                String messageContent = (updatedGame.getTeamTurn() == playerColor) ? "You lost" : "You won!";
+                String messageContent = String.format("%s is in checkmate.", username);
                 String checkmateMessage =
                         gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                                 "Checkmate!"));

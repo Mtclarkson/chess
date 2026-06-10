@@ -107,7 +107,15 @@ public class GameplayClient implements NotificationHandler {
             String endPositionString = params[1];
             ChessPiece.PieceType promotionPiece = (params.length == 3) ?
                     ChessPiece.PieceType.valueOf(params[2].toUpperCase()) : null;
-            // catch bogus moves
+
+            if ((startPositionString.length() != 2) ||
+                    !Character.isAlphabetic(startPositionString.charAt(0)) ||
+                    !Character.isDigit(startPositionString.charAt(1)) ||
+                    (endPositionString.length() != 2) ||
+                    !Character.isAlphabetic(endPositionString.charAt(0)) ||
+                    !Character.isDigit(startPositionString.charAt(1))) {
+                throw new Exception("acceptable move example: d2 d3");
+            }
             int startRow = Integer.parseInt(String.valueOf(startPositionString.charAt(1)));
             int startCol = positionMap.get(startPositionString.charAt(0));
             int endRow = Integer.parseInt(String.valueOf(endPositionString.charAt(1)));
