@@ -1,6 +1,8 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.GameData;
 
@@ -9,9 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 
 public class GameSQLDatabase implements GameDAO {
@@ -86,16 +85,28 @@ public class GameSQLDatabase implements GameDAO {
         return result;
     }
 
-    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
-        GameData game = getGame(gameID);
-        GameData updatedGame = (playerColor.equals("WHITE")) ?
-                new GameData(gameID, newUsername, game.blackUsername(), game.gameName(), game.game()) :
-                new GameData(gameID, game.whiteUsername(), newUsername, game.gameName(), game.game());
-        var statement = (playerColor.equals("WHITE")) ?
-                "UPDATE game SET whiteUsername = ? WHERE gameID = ?;" :
-                "UPDATE game SET blackUsername = ? WHERE gameID = ?;";
-        DatabaseManager.executeUpdate(statement, newUsername, gameID);
-        return updatedGame;
+    // add makeMove() functionality
+    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move)
+            throws DataAccessException, InvalidMoveException {
+        GameData gameData = getGame(gameID);
+        if (move == null) {
+            GameData updatedGame;
+            updatedGame = (playerColor.equals("WHITE")) ?
+                    new GameData(gameID, newUsername, gameData.blackUsername(), gameData.gameName(), gameData.game()) :
+                    new GameData(gameID, gameData.whiteUsername(), newUsername, gameData.gameName(), gameData.game());
+            var statement = (playerColor.equals("WHITE")) ?
+                    "UPDATE game SET whiteUsername = ? WHERE gameID = ?;" :
+                    "UPDATE game SET blackUsername = ? WHERE gameID = ?;";
+            DatabaseManager.executeUpdate(statement, newUsername, gameID);
+            return updatedGame;
+        } else {
+            gameData.game().makeMove(move);
+            Gson gson = new Gson();
+            String gameJson = gson.toJson(gameData.game());
+            var statement = "UPDATE game SET gameData = ? WHERE gameID = ?;";
+            DatabaseManager.executeUpdate(statement, gameJson, gameID);
+            return gameData;
+        }
     }
 
     public void clearAllGames() throws DataAccessException {

@@ -1,5 +1,7 @@
 package service;
 
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import dataaccess.*;
 import model.*;
 
@@ -34,12 +36,13 @@ public class GameService {
         return gameDAO.getGame(givenGameID);
     }
 
-    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
+    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move)
+            throws DataAccessException, InvalidMoveException {
         if (isNullOrBlank(playerColor) || isNullOrBlank(newUsername) || (getGame(gameID)==null) ||
                 (!playerColor.equals("BLACK") && !playerColor.equals("WHITE"))) {
             return null;
         }
-        return gameDAO.updateGame(playerColor, newUsername, gameID);
+        return gameDAO.updateGame(playerColor, newUsername, gameID, move);
     }
 
     public void clearAllGames() throws DataAccessException {

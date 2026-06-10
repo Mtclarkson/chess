@@ -123,4 +123,31 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("  a b c d e f g h\n");
+        for (int row = 7; row >= 0; row--) {
+            sb.append(row + 1).append(" ");
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = squares[row][col];
+                sb.append(piece == null ? "." : pieceToChar(piece)).append(" ");
+            }
+            sb.append(row + 1).append("\n");
+        }
+        sb.append("  a b c d e f g h");
+        return sb.toString();
+    }
+
+    private char pieceToChar(ChessPiece piece) {
+        char c = switch (piece.getPieceType()) {
+            case KING   -> 'k';
+            case QUEEN  -> 'q';
+            case ROOK   -> 'r';
+            case BISHOP -> 'b';
+            case KNIGHT -> 'n';
+            case PAWN   -> 'p';
+        };
+        return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? Character.toUpperCase(c) : c;
+    }
 }

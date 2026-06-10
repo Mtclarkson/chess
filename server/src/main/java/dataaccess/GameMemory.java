@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class GameMemory implements GameDAO {
         return null;
     }
 
-    public GameData updateGame(String playerColor, String newUsername, int gameID) throws DataAccessException {
+    public GameData updateGame(String playerColor, String newUsername, int gameID, ChessMove move)
+            throws DataAccessException {
         GameData game = getGame(gameID);
         GameData updatedGame = (playerColor.equals("WHITE")) ? new GameData(gameID, newUsername, game.blackUsername() ,game.gameName(), game.game()) :
                 new GameData(gameID, game.whiteUsername(), newUsername, game.gameName(), game.game());

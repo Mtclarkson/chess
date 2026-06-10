@@ -1,5 +1,6 @@
 package service;
 
+import chess.InvalidMoveException;
 import dataaccess.DataAccessException;
 import dataaccess.GameMemory;
 import model.GameData;
@@ -59,20 +60,20 @@ class GameServiceTests {
 
     // positive test for updateGame();
     @Test
-    void updateGameTest() throws DataAccessException {
+    void updateGameTest() throws DataAccessException, InvalidMoveException {
         GameData monopoly = GAME_SERVICE.createGame("monopoly");
-        monopoly = GAME_SERVICE.updateGame("BLACK","Mr. White", monopoly.gameID());
-        monopoly = GAME_SERVICE.updateGame("WHITE","Mr. Black", monopoly.gameID());
+        monopoly = GAME_SERVICE.updateGame("BLACK","Mr. White", monopoly.gameID(), null);
+        monopoly = GAME_SERVICE.updateGame("WHITE","Mr. Black", monopoly.gameID(), null);
 
         assertEquals("Mr. White", monopoly.blackUsername());
     }
 
     // negative test for updateGame();
     @Test
-    void updateGameDoesntExistTest() throws DataAccessException {
+    void updateGameDoesntExistTest() throws DataAccessException, InvalidMoveException {
         GameData update;
         int fakeID = 67;
-        update = GAME_SERVICE.updateGame("BLACK","Mr. White", fakeID);
+        update = GAME_SERVICE.updateGame("BLACK","Mr. White", fakeID, null);
 
         assertNull(update);
     }

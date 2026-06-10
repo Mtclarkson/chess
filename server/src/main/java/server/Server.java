@@ -253,14 +253,14 @@ public class Server {
             if (joiningPlayerColor.equals("WHITE")) {
                 if (game.whiteUsername()!=null) {
                     throw new AlreadyTakenException("Error: already taken");
-                } gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID());
+                } gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID(), null);
 //                webSocketHandler.connect(authToken, game.gameID(), (Session) ctx);
             }
 
             else {
                 if (game.blackUsername()!=null) {
                     throw new AlreadyTakenException("Error: already taken");
-                } gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID());
+                } gameService.updateGame(joiningPlayerColor, authData.username(), game.gameID(), null);
             }
 
             ctx.status(200);

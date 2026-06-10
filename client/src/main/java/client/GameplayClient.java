@@ -2,6 +2,7 @@ package client;
 
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.GameData;
@@ -16,7 +17,18 @@ public class GameplayClient {
     private final String authToken;
     private final String playerColor;
     private final GameData gameData;
+    private final Map<Character, Integer> positionMap = Map.of(
+            'a',1,
+            'b', 2,
+            'c', 3,
+            'd', 4,
+            'e', 5,
+            'f', 6,
+            'g', 7,
+            'h', 8
+    );
 
+    // make a MakeMoveCommand and send it to the server
     public GameplayClient(String serverUrl, String authToken, GameData gameData, String playerColor) {
         server = new ServerFacade(serverUrl);
         this.authToken = authToken;
@@ -59,6 +71,7 @@ public class GameplayClient {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "show" -> drawBoard(playerColor).toString();
+                case "move" -> move(params);
                 case "leave" -> "quit";
                 default -> help();
             };
@@ -73,6 +86,22 @@ public class GameplayClient {
                 - leave
                 - help - see these options again
                 """;
+    }
+
+    private String move(String... params) throws Exception {
+        if ((params.length == 2) || (params.length == 3)) {
+            String startPositionString = params[0];
+            String endPositionString = params[1];
+            ChessPiece.PieceType promotionPiece =
+                    (params[2].isEmpty()) ? null : ChessPiece.PieceType.valueOf(params[2].toUpperCase());
+            ChessPosition startPosition =
+                    new ChessPosition(startPositionString.charAt(1),positionMap.get(startPositionString.charAt(0)));
+            ChessPosition endPosition =
+                    new ChessPosition(endPositionString.charAt(1),positionMap.get(endPositionString.charAt(0)));
+            ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
+            return move.toString(); // replace with websocketfacade
+        }
+        throw new Exception("Expected: <starting position> <ending position>");
     }
 
     private StringBuilder drawBoard(String playerColor) {
