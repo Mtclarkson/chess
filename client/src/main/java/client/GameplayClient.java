@@ -141,7 +141,7 @@ public class GameplayClient implements NotificationHandler {
                 gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)||
                 gameData.game().isInStalemate(ChessGame.TeamColor.WHITE)||
                 gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
-            System.out.print("Game is over. No more moves can be made");
+            System.out.print("Game is over.");
             return "";
         }
         Scanner scanner = new Scanner(System.in);
