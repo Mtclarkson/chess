@@ -1,13 +1,10 @@
-package server.websocket_server;
+package server.websocketserver;
 
-import dataaccess.DataAccessException;
 import org.eclipse.jetty.websocket.api.Session;
-import websocket.messages.*;
-import websocket.commands.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {

@@ -1,4 +1,4 @@
-package server.websocket_server;
+package server.websocketserver;
 
 import chess.*;
 import com.google.gson.Gson;
@@ -11,7 +11,6 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
 import model.GameData;
-import model.UserData;
 import org.eclipse.jetty.websocket.api.Session;
 import service.AuthService;
 import service.UserService;
@@ -19,10 +18,7 @@ import websocket.commands.*;
 import websocket.messages.*;
 import service.GameService;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
-
-import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 

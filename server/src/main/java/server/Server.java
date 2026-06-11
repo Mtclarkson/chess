@@ -2,11 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import model.*;
-import org.eclipse.jetty.websocket.api.Session;
 import requests.*;
 import results.*;
 import org.mindrot.jbcrypt.BCrypt;
-import server.websocket_server.WebSocketHandler;
+import server.websocketserver.WebSocketHandler;
 import service.*;
 import dataaccess.*;
 import io.javalin.*;
