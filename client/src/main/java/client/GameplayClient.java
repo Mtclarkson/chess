@@ -137,6 +137,13 @@ public class GameplayClient implements NotificationHandler {
     }
 
     private String resign() throws Exception {
+        if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)||
+                gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)||
+                gameData.game().isInStalemate(ChessGame.TeamColor.WHITE)||
+                gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+            System.out.print("Game is over. No more moves can be made");
+            return "";
+        }
         Scanner scanner = new Scanner(System.in);
         System.out.print("Confirm resignation: y/n");
         printPrompt();

@@ -109,26 +109,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         if ((authData != null) && (gameData != null)) {
             String username = authData.username();
             ChessGame game = gameData.game();
-            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                String checkMessageContent = (game.isInCheck(ChessGame.TeamColor.WHITE)) ?
-                        String.format("%s is in check!", gameData.whiteUsername()) :
-                        String.format("%s is in check!", gameData.blackUsername());
-                String checkMessage =
-                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                checkMessageContent));
-                connections.broadcast(session, gameID, checkMessage);
-                connections.reply(session, checkMessage);
-            }
-            if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheck(ChessGame.TeamColor.BLACK)) {
-                String checkMessageContent = (game.isInCheck(ChessGame.TeamColor.WHITE)) ?
-                        String.format("%s is in check!", gameData.whiteUsername()) :
-                        String.format("%s is in check!", gameData.blackUsername());
-                String checkMessage =
-                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                checkMessageContent));
-                connections.broadcast(session, gameID, checkMessage);
-                connections.reply(session, checkMessage);
-            }
 
             ChessGame.TeamColor playerColor = (username.equals(gameData.whiteUsername())) ?
                     ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
@@ -146,6 +126,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "Error: Not your piece!"));
                 connections.reply(session, errorMessage);
                 return;
+            }
+            else if (game.getGameOverStatus()) {
+                if (!game.isInCheckmate(playerColor) && !game.isInStalemate(playerColor)) {
+                    String errorMessage =
+                            gson.toJson(new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                                    String.format("Error: %s has resigned", username)));
+                    connections.reply(session, errorMessage);
+                    return;
+                }
             }
 
             try {
@@ -165,6 +154,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     gson.toJson(new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGameData));
             connections.broadcast(session, gameID, gameString);
             connections.reply(session, gameString);
+
+            if ((updatedGame.isInCheck(ChessGame.TeamColor.WHITE) || updatedGame.isInCheck(ChessGame.TeamColor.BLACK))
+                    && !updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE) &&
+                    !updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                String checkMessageContent = (updatedGame.isInCheck(ChessGame.TeamColor.WHITE)) ?
+                        String.format("%s is in check!", updatedGameData.whiteUsername()) :
+                        String.format("%s is in check!", updatedGameData.blackUsername());
+                String checkMessage =
+                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                checkMessageContent));
+                connections.broadcast(session, gameID, checkMessage);
+                connections.reply(session, checkMessage);
+            }
 
             if (updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE) || updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
                 String winningTeam = game.getTeamTurn().toString();

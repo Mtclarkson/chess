@@ -122,12 +122,17 @@ public class ChessGame {
             }
         }
         if (gameOver) {
-            throw new InvalidMoveException("Invalid move!");
+            if (isInCheckmate(currentTeam)) {
+                throw new InvalidMoveException("Game is over");
+            }
+            else {
+            throw new InvalidMoveException(String.format("%s had resigned.", currentTeam.toString()));
+            }
         }
+        throw new InvalidMoveException("Invalid move!");
     }
 
     public ChessPosition getKingPosition(TeamColor teamColor) {
-        // get teamColor's King Position
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPiece piece = gameboard.getPiece(new ChessPosition(i,j));
