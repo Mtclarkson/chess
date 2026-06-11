@@ -137,7 +137,14 @@ public class GameplayClient implements NotificationHandler {
     }
 
     private String resign() throws Exception {
-        ws.resign(authToken, gameData.gameID());
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Confirm resignation: y/n");
+        printPrompt();
+        String line = scanner.nextLine();
+        if (Objects.equals(line, "y")) {
+            ws.resign(authToken, gameData.gameID());
+
+        }
         return "";
     }
 

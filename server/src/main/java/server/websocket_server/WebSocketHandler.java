@@ -108,8 +108,28 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         Gson gson = new Gson();
         if ((authData != null) && (gameData != null)) {
             String username = authData.username();
-
             ChessGame game = gameData.game();
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                String checkMessageContent = (game.isInCheck(ChessGame.TeamColor.WHITE)) ?
+                        String.format("%s is in check!", gameData.whiteUsername()) :
+                        String.format("%s is in check!", gameData.blackUsername());
+                String checkMessage =
+                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                checkMessageContent));
+                connections.broadcast(session, gameID, checkMessage);
+                connections.reply(session, checkMessage);
+            }
+            if (game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheck(ChessGame.TeamColor.BLACK)) {
+                String checkMessageContent = (game.isInCheck(ChessGame.TeamColor.WHITE)) ?
+                        String.format("%s is in check!", gameData.whiteUsername()) :
+                        String.format("%s is in check!", gameData.blackUsername());
+                String checkMessage =
+                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                checkMessageContent));
+                connections.broadcast(session, gameID, checkMessage);
+                connections.reply(session, checkMessage);
+            }
+
             ChessGame.TeamColor playerColor = (username.equals(gameData.whiteUsername())) ?
                     ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
             ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
@@ -147,16 +167,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.reply(session, gameString);
 
             if (updatedGame.isInCheckmate(ChessGame.TeamColor.WHITE) || updatedGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                String messageContent = String.format("%s is in checkmate.", username);
+                String winningTeam = game.getTeamTurn().toString();
+                String loserName = (Objects.equals(winningTeam, "WHITE")) ? gameData.blackUsername() : gameData.whiteUsername();
+                String checkmateMessageContent = String.format("%s is in checkmate.", loserName);
+                String moveMessage =
+                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                String.format("%s: %s %s", username,
+                                        move.getStartPosition().toString(), move.getEndPosition().toString())));
                 String checkmateMessage =
                         gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                "Checkmate!"));
-                String extraMessage =
-                        gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                messageContent));
+                                checkmateMessageContent));
+
+                connections.broadcast(session, gameID, moveMessage);
                 connections.broadcast(session, gameID, checkmateMessage);
                 connections.reply(session, checkmateMessage);
-                connections.broadcast(session, gameID, extraMessage); //what the heck is the extra notif supposed to be
             } else {
                 String message =
                         gson.toJson(new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
